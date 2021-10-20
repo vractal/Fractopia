@@ -1,17 +1,22 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1>Teste</h1>
+    <SolidLogin />
+    <solid-track-session />
+
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import SolidLogin from '@/components/SolidLogin'
+import SolidTrackSession from '@/components/SolidTrackSession'
+
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    SolidLogin,
+    SolidTrackSession
   }
 }
 </script>

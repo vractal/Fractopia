@@ -1,0 +1,37 @@
+{
+  "en": {
+    "hello": "hello world!",
+    "login": "Login",
+    "logout": "Logout",
+    "chat": "Chat",
+    "inbox": "Inbox",
+    "talk": "Talk",
+    "databrowser": "DataBrowser",
+    "bookmarks": "Bookmarks",
+    "profile": "Profile",
+    "fofri": "Follow Friends",
+    "friends": "Friends",
+    "communication": "Communication",
+    "storage": "Storage",
+    "User": "User",
+    "explorer": "Explorer",
+    "editor": "Editor",
+    "POds in the POCKet": "POds in the POCKet!",
+    "tension_annonce": "A Tension is a difference between WHAT IS is and WHAT SHOULD BE",
+    "NameQuestion": "Please give a name to your worst Tension ?",
+    "WhatIs": "What is ?",
+    "WhatShouldBe": "What should be ?",
+    "what_role": "In which role do you feel this tension ?",
+    "which_domains": "Which domains does this tension apply ?",
+    "Save": "Save",
+    "Tension": "Tension",
+    "Tensions": "Tensions",
+    "Groups": "Groups",
+    "Name": "Name",
+    "provider_select_proposition" : "If you don't have a POD, please select a provider in the list below:",
+    "proposition_frends_graph" : "To see your Solid friends in the graph, please refresh this page.",
+    "refresh":"Refresh",
+    "choose_source": "Choose a source :"
+   }
+
+}
