@@ -1,24 +1,33 @@
 <template>
-  <div id="app">
-    <h1>Teste</h1>
-    <SolidLogin />
-    <solid-track-session />
-
-  </div>
+  <v-app>
+    <v-main>
+      <div id="app">
+        <h1>Fractopia</h1>
+        <SolidLogin />
+        <div v-if="logged">
+          <tool-bar />
+        </div>
+      </div>
+    </v-main>
+  </v-app>
 </template>
 
 <script>
-import SolidLogin from '@/components/SolidLogin'
-import SolidTrackSession from '@/components/SolidTrackSession'
-
+import SolidLogin from "@/components/SolidLogin";
+import ToolBar from "./components/ToolBar.vue";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
     SolidLogin,
-    SolidTrackSession
-  }
-}
+    ToolBar,
+  },
+  computed: {
+    logged() {
+      return this.$store.state.auth.webId;
+    },
+  },
+};
 </script>
 
 <style>

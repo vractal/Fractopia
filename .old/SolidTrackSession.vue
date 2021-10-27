@@ -25,7 +25,6 @@ export default {
 
 
 
-
     auth.trackSession(async session => {
       if (!session){
         this.user = null
