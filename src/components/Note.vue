@@ -4,6 +4,7 @@
     class="container pa-4"
     color="white"
     max-width="900"
+    rounded
   >
     <div class="d-flex flex-column  justify-space-between ">
       <v-md-editor
