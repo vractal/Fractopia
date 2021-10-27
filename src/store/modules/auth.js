@@ -8,6 +8,7 @@ import {
 
 // initial state
 const state = () => ({
+  processing: false,
   webId: null,
   sessionId: null,
 });
@@ -18,34 +19,24 @@ const getters = {};
 // actions
 const actions = {
   async login(context, { userUrl }) {
-    // 1. Call the handleIncomingRedirect() function to complete the authentication process.
-    //   If the page is being loaded after the redirect from the Solid Identity Provider
-    //      (i.e., part of the authentication flow), the user's credentials are stored in-memory, and
-    //      the login process is complete. That is, a session is logged in
-    //      only after it handles the incoming redirect from the Solid Identity Provider.
-    //   If the page is not being loaded after a redirect from the Solid Identity Provider,
-    //      nothing happens.
-    // 2. Start the Login Process if not already logged in.
+    context.commit("setProcessing", true);
+
     if (!getDefaultSession().info.isLoggedIn) {
-      // The `login()` redirects the user to their identity provider;
-      // i.e., moves the user away from the current page.
       await login({
-        // Specify the URL of the user's Solid Identity Provider; e.g., "https://broker.pod.inrupt.com" or "https://inrupt.net"
         oidcIssuer: userUrl,
-        // Specify the URL the Solid Identity Provider should redirect to after the user logs in,
-        // e.g., the current page for a single-page app.
         redirectUrl: window.location.href,
-        // Pick an application name that will be shown when asked
-        // to approve the application's access to the requested data.
         clientName: "Fractopia",
       });
     }
     context.commit("setWebId", getDefaultSession().info.webId);
+    context.commit("setProcessing", false);
   },
   async silentLogin(context) {
+    context.commit("setProcessing", true);
+
     await handleIncomingRedirect({ restorePreviousSession: true });
-    console.log("session", getDefaultSession());
     context.commit("setWebId", getDefaultSession().info.webId);
+    context.commit("setProcessing", false);
   },
   async logout(context) {
     await logout();
@@ -55,6 +46,9 @@ const actions = {
 
 // mutations
 const mutations = {
+  setProcessing(state, status) {
+    state.processing = status;
+  },
   setWebId(state, webId) {
     console.log("oi", webId);
 

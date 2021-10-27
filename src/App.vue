@@ -1,26 +1,31 @@
 <template>
-  <v-app>
-    <v-main>
-      <div id="app">
-        <h1>Fractopia</h1>
-        <SolidLogin />
+  <div id="app">
+    <v-app>
+      <v-main>
         <div v-if="logged">
           <tool-bar />
+          <active-view />
         </div>
-      </div>
-    </v-main>
-  </v-app>
+        <SolidLogin v-else />
+      </v-main>
+    </v-app>
+  </div>
 </template>
 
 <script>
 import SolidLogin from "@/components/SolidLogin";
-import ToolBar from "./components/ToolBar.vue";
+import ToolBar from "@/components/toolbar/ToolBar.vue";
+import ActiveView from "./components/ActiveView.vue";
 
 export default {
   name: "App",
   components: {
     SolidLogin,
     ToolBar,
+    ActiveView,
+  },
+  created() {
+    this.$store.dispatch("auth/silentLogin");
   },
   computed: {
     logged() {
@@ -35,8 +40,6 @@ export default {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+  /* background-color: #3a3b3c; */
 }
 </style>
