@@ -10,11 +10,13 @@ export default {
       }
     },
     makeToast(title, content,variant = null) {
-      this.$bvToast.toast(content , {
-        title: title,
-        variant: variant,
-        solid: true
-      })
+      // this.$bvToast.toast(content , {
+      //   title: title,
+      //   variant: variant,
+      //   solid: true
+      // })
+      console.log('toast',content,variant)
+
     }
   }
 
