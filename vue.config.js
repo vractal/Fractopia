@@ -1,5 +1,4 @@
-const publicPath =
-  process.env.NODE_ENV === "production" ? "/fractopia-solid-prototype/" : "/";
+const publicPath = process.env.NODE_ENV === "production" ? "/" : "/";
 
 module.exports = {
   // options...
