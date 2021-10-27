@@ -1,21 +1,29 @@
+import SoukaiSolid, { SolidEngine, SolidModel } from "soukai-solid";
+import Soukai, { FieldType, MultiModelRelation } from "soukai";
+import { schema } from "rdf-namespaces";
 export default class Note {
-  type = "urlfornotevocabulary";
+  rdfContexts = {
+    schema: "https://schema.org/",
+  };
+
+  rdfsClasses = ["schema:NoteDigitalDocument"];
+
   fields = {
     content: {
-      type: String,
-      rdfType: "urlforcontent",
+      type: FieldType.String,
+      rdfType: schema.text,
     },
     dateCreated: {
-      type: Date,
-      rdfType: "urlfordatecreated",
+      type: FieldType.Date,
+      rdfType: schema.dateCreated,
     },
     lastModified: {
-      type: Date,
-      rdfType: "urlforlastmodified",
+      type: FieldType.Date,
+      rdfType: schema.lastModified,
     },
     title: {
-      type: String,
-      rdfType: "urlfortitle",
+      type: FieldType.String,
+      rdfType: schema.headline,
     },
   };
 }
