@@ -1,7 +1,9 @@
-import SoukaiSolid, { SolidEngine, SolidModel } from "soukai-solid";
-import Soukai, { FieldType, MultiModelRelation } from "soukai";
-import { schema } from "rdf-namespaces";
-export default class Note {
+import { SolidModel } from "soukai-solid";
+import { FieldType, } from "soukai";
+// import { schema } from "rdf-namespaces";
+import NoteContainer from  './NoteContainer'
+
+export default class Note extends SolidModel {
   rdfContexts = {
     schema: "https://schema.org/",
   };
@@ -11,19 +13,25 @@ export default class Note {
   fields = {
     content: {
       type: FieldType.String,
-      rdfType: schema.text,
+      rdfType: 'schema.text',
     },
-    dateCreated: {
-      type: FieldType.Date,
-      rdfType: schema.dateCreated,
-    },
-    lastModified: {
-      type: FieldType.Date,
-      rdfType: schema.lastModified,
-    },
-    title: {
-      type: FieldType.String,
-      rdfType: schema.headline,
-    },
+    // name: FieldType.String,
+            
+    // dateCreated: {
+    //   type: FieldType.Date,
+    //   rdfType: 'schema.dateCreated',
+    // },
+    // lastModified: {
+    //   type: FieldType.Date,
+    //   rdfType: 'schema.dateModified',
+    // },
+    // title: {
+    //   type: FieldType.String,
+    //   rdfType: 'schema.headline',
+    // },
+    noteContainerRelationship() {
+        return this.isContainedBy(NoteContainer);
+    }
+
   };
 }

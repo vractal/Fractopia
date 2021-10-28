@@ -6,11 +6,12 @@
     max-width="900"
     rounded
   >
-    <div class="d-flex flex-column  justify-space-between ">
+    <div class="d-flex flex-column justify-space-between">
       <v-md-editor
         v-model="note"
         :mode="mode"
         tolbar="{}"
+        on
         autofocus
         left-toolbar="undo redo clear | h bold italic quote | ul ol | link image code"
         right-toolbar=""
@@ -33,10 +34,20 @@ export default {
       return this.editorToggle ? "edit" : "preview";
     },
   },
+  watch: {
+    editorToggle() {
+      if (!this.editorToggle) {
+        this.postNote();
+      }
+    },
+  },
 
   methods: {
-    onEdit(event) {
-      this.note = event.target.innerText;
+    postNote() {
+      console.log("event");
+      this.$store.dispatch("notes/createNote", {
+        content: this.note,
+      });
     },
   },
 };
