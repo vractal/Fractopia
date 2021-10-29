@@ -7,6 +7,10 @@ import colors from "vuetify/lib/util/colors";
 import Vuetify from "vuetify/lib/framework";
 import MarkdownEditor from "@/plugins/markdownEditor";
 
+
+
+
+
 Vue.use(Vuetify);
 const vuetify = new Vuetify({
   theme: {
