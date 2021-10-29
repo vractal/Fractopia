@@ -8,6 +8,7 @@
       item-key="name"
       open-on-click
       :load-children="load"
+      :active.sync="active"
     >
       <template v-slot:prepend="{ item, open }">
         <v-icon v-if="!item.file">
@@ -18,6 +19,7 @@
         </v-icon>
       </template>
     </v-treeview>
+    <v-btn small @click="fetchInitial"><v-icon>mdi-refresh</v-icon></v-btn>
   </v-sheet>
 </template>
 <script>
@@ -29,7 +31,8 @@ export default {
     this.fetchInitial();
   },
   data: () => ({
-    url: "https://zesolid.solidcommunity.net/",
+    active: [],
+    url: "https://zesolid.solidcommunity.net/public/tmp/notes/",
     initiallyOpen: ["public"],
     files: {
       md: "mdi-language-markdown",
@@ -42,50 +45,16 @@ export default {
       html: "mdi-language-html5",
     },
     tree: [],
-    items: [
-      {
-        name: "Lista de Filmes",
-      },
-      {
-        name: "Atas",
-      },
-      {
-        name: "Estudos",
-        children: [
-          {
-            name: "Comunalismo",
-            children: [
-              {
-                name: "Reuniões",
-                children: [{ name: "Setembro", file: "md" }],
-              },
-            ],
-          },
-          {
-            name: "Livro Bookchin.epub",
-            file: "txt",
-          },
-          {
-            name: "Lista de estudos",
-            file: "txt",
-          },
-        ],
-      },
-      {
-        name: ".tretas",
-        file: "txt",
-      },
-      {
-        name: "snippet.js",
-        file: "js",
-      },
-
-      {
-        name: "Inicio.md",
-        file: "md",
-      },
-    ],
+    items: [],
   }),
+  watch: {
+    active(newValue, oldValue) {
+      if (newValue.length > 0) {
+        this.$store.dispatch("notes/getNote", { noteId: newValue[0] });
+      }
+      console.log("oldValue", oldValue, newValue);
+    },
+  },
   methods: {
     async parseFileTree(path, level = 0, maxLevels) {
       console.log("treeParser", level, path);

@@ -6,9 +6,9 @@
     max-width="900"
     rounded
   >
-    <div class="d-flex flex-column justify-space-between">
+    <div v-if="note !== null" class="d-flex flex-column justify-space-between">
       <v-md-editor
-        v-model="note"
+        v-model="localContent"
         :mode="mode"
         tolbar="{}"
         on
@@ -28,25 +28,46 @@
 </template>
 <script>
 export default {
-  data: () => ({ note: "# Title", md: null, editorToggle: false }),
+  data: () => ({ localContent: null, md: null, editorToggle: false }),
   computed: {
     mode() {
       return this.editorToggle ? "edit" : "preview";
+    },
+    note() {
+      return (
+        this.$store.state.notes.activeNote &&
+        this.$store.state.notes.activeNote.content
+      );
     },
   },
   watch: {
     editorToggle() {
       if (!this.editorToggle) {
         this.postNote();
+        // /this.localContent;
+      } else {
+        this.localContent = this.note;
+      }
+    },
+    note(newValue) {
+      this.localContent = this.note;
+      if (newValue === "") {
+        this.editorToggle = true;
+      } else {
+        this.editorToggle = false;
       }
     },
   },
 
   methods: {
+    getNote() {
+      this.$store.dispatch("notes/getNote");
+    },
     postNote() {
-      console.log("event");
-      this.$store.dispatch("notes/createNote", {
-        content: this.note,
+      console.log("event", this.$store.state.notes.activeNote);
+      this.$store.dispatch("notes/saveNote", {
+        content: this.localContent,
+        noteUrl: this.$store.state.notes.activeNote.url,
       });
     },
   },
