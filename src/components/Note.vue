@@ -7,6 +7,7 @@
     rounded
   >
     <div v-if="note !== null" class="d-flex flex-column justify-space-between">
+      <v-text-field v-model="title" @blur="postNote" />
       <v-md-editor
         v-model="localContent"
         :mode="mode"
@@ -28,7 +29,12 @@
 </template>
 <script>
 export default {
-  data: () => ({ localContent: null, md: null, editorToggle: false }),
+  data: () => ({
+    localContent: null,
+    title: "",
+    md: null,
+    editorToggle: false,
+  }),
   computed: {
     mode() {
       return this.editorToggle ? "edit" : "preview";
@@ -37,6 +43,12 @@ export default {
       return (
         this.$store.state.notes.activeNote &&
         this.$store.state.notes.activeNote.content
+      );
+    },
+    storeTitle() {
+      return (
+        this.$store.state.notes.activeNote &&
+        this.$store.state.notes.activeNote.title
       );
     },
   },
@@ -57,6 +69,9 @@ export default {
         this.editorToggle = false;
       }
     },
+    storeTitle(newValue) {
+      this.title = newValue;
+    },
   },
 
   methods: {
@@ -67,6 +82,7 @@ export default {
       console.log("event", this.$store.state.notes.activeNote);
       this.$store.dispatch("notes/saveNote", {
         content: this.localContent,
+        title: this.title,
         noteUrl: this.$store.state.notes.activeNote.url,
       });
     },

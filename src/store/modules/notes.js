@@ -28,7 +28,7 @@ const actions = {
     async saveNote(context, noteData) {
         let newNote = await Note.save({
             content: noteData.content,
-            title: 'Titulo',
+            title: noteData.title,
             noteUrl: noteData.noteUrl
         })
         console.log('Create', noteData, newNote)
