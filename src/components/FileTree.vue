@@ -51,7 +51,7 @@ export default {
   watch: {
     active(newValue, oldValue) {
       if (newValue.length > 0) {
-        this.$store.dispatch("notes/getNote", { noteId: newValue[0] });
+        this.$store.dispatch("notes/getNote", { url: newValue[0] });
       }
       console.log("oldValue", oldValue, newValue);
     },

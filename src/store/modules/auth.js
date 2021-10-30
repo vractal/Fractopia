@@ -34,15 +34,15 @@ const actions = {
 
     context.commit("setProcessing", false);
   },
-  async initialSetup() {
+  async initialSetup(context) {
     var welcomeNote = new Note({
       content: "# Benvindes a Fractopia",
       title: "Bemvindes",
+      id: "index",
     });
-    welcomeNote.url = Note.defaultCollection + "index";
-    console.log("intiialSetup", welcomeNote);
 
     await welcomeNote.save();
+    if (!welcomeNote.new) context.commit("notes/setNote", welcomeNote);
 
     // createContainer if not
     // create default workspaces

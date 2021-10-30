@@ -28,6 +28,7 @@ const actions = {
     let newNote = new Note({
       content: noteData.content,
       title: noteData.title,
+      id: noteData.id,
     });
     await newNote.save();
     console.log("Create", noteData, newNote);

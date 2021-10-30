@@ -47,10 +47,12 @@ const i18n = new VueI18n({
 
 Vue.use(MarkdownEditor);
 
-new Vue({
+var vue = new Vue({
   i18n,
   store,
   vuetify,
   router,
   render: (h) => h(App),
 }).$mount("#app");
+
+export default vue;
