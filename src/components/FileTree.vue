@@ -26,13 +26,14 @@
 import { fetch } from "@inrupt/solid-client-authn-browser";
 import FC from "solid-file-client";
 const fc = new FC({ fetch });
+
 export default {
   created() {
     this.fetchInitial();
   },
   data: () => ({
     active: [],
-    url: "https://zesolid.solidcommunity.net/public/tmp/notes/",
+    url: "https://solidmias.solidweb.org/public/fractopia/",
     initiallyOpen: ["public"],
     files: {
       md: "mdi-language-markdown",
@@ -114,8 +115,13 @@ export default {
       return [...subFolders, ...files];
     },
     async get(url) {
-      const folder = await fc.readFolder(url);
-      return folder;
+      try {
+        const folder = await fc.readFolder(url);
+        return folder;
+      } catch (e) {
+        console.warn(e);
+        return {};
+      }
     },
 
     async fetchInitial() {

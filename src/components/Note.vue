@@ -83,7 +83,7 @@ export default {
       this.$store.dispatch("notes/saveNote", {
         content: this.localContent,
         title: this.title,
-        noteUrl: this.$store.state.notes.activeNote.url,
+        noteUrl: this.$store.state.notes.activeNote?.url,
       });
     },
   },

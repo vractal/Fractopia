@@ -5,10 +5,12 @@ import {
   // fetch,
   getDefaultSession,
 } from "@inrupt/solid-client-authn-browser";
+import Note from "../../models/Note";
 
 // initial state
 const state = () => ({
   processing: false,
+  processingSilent: false,
   webId: null,
   sessionId: null,
 });
@@ -29,14 +31,31 @@ const actions = {
       });
     }
     context.commit("setWebId", getDefaultSession().info.webId);
+
     context.commit("setProcessing", false);
   },
-  async silentLogin(context) {
-    context.commit("setProcessing", true);
+  async initialSetup() {
+    var welcomeNote = new Note({
+      content: "# Benvindes a Fractopia",
+      title: "Bemvindes",
+    });
+    welcomeNote.url = Note.defaultCollection + "index";
+    console.log("intiialSetup", welcomeNote);
 
+    await welcomeNote.save();
+
+    // createContainer if not
+    // create default workspaces
+    // private
+    // networked
+    // set defaultcontext
+  },
+  async silentLogin(context) {
+    context.commit("setProcessingSilent", true);
     await handleIncomingRedirect({ restorePreviousSession: true });
     context.commit("setWebId", getDefaultSession().info.webId);
-    context.commit("setProcessing", false);
+    context.dispatch("initialSetup");
+    context.commit("setProcessingSilent", false);
   },
   async logout(context) {
     await logout();
@@ -48,6 +67,9 @@ const actions = {
 const mutations = {
   setProcessing(state, status) {
     state.processing = status;
+  },
+  setProcessingSilent(state, status) {
+    state.processingSilent = status;
   },
   setWebId(state, webId) {
     console.log("oi", webId);
