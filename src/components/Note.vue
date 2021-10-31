@@ -40,16 +40,10 @@ export default {
       return this.editorToggle ? "edit" : "preview";
     },
     note() {
-      return (
-        this.$store.state.notes.activeNote &&
-        this.$store.state.notes.activeNote.content
-      );
+      return this.$store.state.notes.activeNote?.content;
     },
     storeTitle() {
-      return (
-        this.$store.state.notes.activeNote &&
-        this.$store.state.notes.activeNote.title
-      );
+      return this.$store.state.notes.activeNote?.title;
     },
   },
   watch: {
@@ -70,7 +64,7 @@ export default {
       }
     },
     storeTitle(newValue) {
-      this.title = newValue;
+      this.title = newValue || "";
     },
   },
 
@@ -84,6 +78,7 @@ export default {
         content: this.localContent,
         title: this.title,
         noteUrl: this.$store.state.notes.activeNote?.url,
+        id: this.$store.state.notes.activeNote?.id,
       });
     },
   },

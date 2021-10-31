@@ -33,7 +33,6 @@ export default {
   },
   data: () => ({
     active: [],
-    url: "https://solidmias.solidweb.org/public/fractopia/",
     initiallyOpen: ["public"],
     files: {
       md: "mdi-language-markdown",
@@ -54,6 +53,18 @@ export default {
         this.$store.dispatch("notes/getNote", { url: newValue[0] });
       }
       console.log("oldValue", oldValue, newValue);
+    },
+    url() {
+      this.fetchInitial();
+    },
+  },
+  computed: {
+    url() {
+      return (
+        this.$store.state.auth.webId?.replace("profile/card#me", "") +
+        this.$store.state.auth.storage +
+        this.$store.state.auth.spaceStorage
+      );
     },
   },
   methods: {

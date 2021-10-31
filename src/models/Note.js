@@ -47,15 +47,16 @@ export default class Note {
   get currentWebId() {
     return store.state.auth.webId?.replace("profile/card#me", "");
   }
-  static defaultCollectionPath = "public/fractopia/notes/";
-  customCollectionPath = "public/fractopia/notes/";
+
+  static defaultCollectionPath = "notes/";
+  customCollectionPath = null;
 
   get collectionPath() {
     return this.customCollectionPath || Note.defaultCollectionPath;
   }
 
   get currentSpacePath() {
-    return "";
+    return store.state.auth.storage + store.state.auth.spaceStorage
   }
 
   get fullCollectionPath() {
@@ -86,12 +87,18 @@ export default class Note {
     },
   };
 
-  constructor({ id, title, content }) {
+  constructor({ id, title, content, noteUrl }) {
     this.title = title;
     this.content = content;
     this.new = true;
-    this.id = id;
-    console.log("this.id", id);
+    if (noteUrl === undefined || noteUrl === null) {
+      this.id = id || uuidv4();
+    } else {
+      this.url = noteUrl
+
+    }
+
+    console.log("this.id", id, noteUrl);
   }
 
   static fromThing(noteThing) {
@@ -107,11 +114,14 @@ export default class Note {
 
     note.collection = this.defaultCollection;
     note.new = false;
+    return note;
   }
 
   addWithCorrectType(thing, field, value) {
+
     switch (this.fieldsSchema[field].rdfType) {
       case schema.text:
+        console.log('Case', schema.text)
         return addStringNoLocale(
           thing,
           this.fieldsSchema[field].rdfType,
@@ -126,23 +136,27 @@ export default class Note {
     }
   }
   async save() {
+    console.log('SAVE:')
+
     let noteDataset;
     let noteThing;
     let url = this.fullDatasetPath;
     if (this.new) {
       // Create
       noteDataset = createSolidDataset();
-      noteThing = buildThing(createThing({ name: "note" }))
-        .addUrl(rdf.type, this.rdfsClasses[0])
-        .build();
+      noteThing = createThing({ name: "note" })
 
-      noteDataset = setThing(noteDataset, noteThing);
+      noteThing = addUrl(noteThing, rdf.type, this.rdfsClasses[0])
+
 
       for (let field in this.fieldsSchema) {
         if (this[field]) {
-          this.addWithCorrectType(noteThing, field, this.fieldsSchema[field]);
+          noteThing = this.addWithCorrectType(noteThing, field, this[field]);
         }
       }
+      noteDataset = setThing(noteDataset, noteThing);
+
+
     } else {
       // Update
       noteDataset = await getSolidDataset(this.fullDatasetPath);
@@ -157,6 +171,8 @@ export default class Note {
         }
       }
     }
+
+    console.log('SAVE:', noteThing, this.fullDatasetPath)
 
     try {
       await saveSolidDatasetAt(
@@ -179,7 +195,30 @@ export default class Note {
 
   static async find({ url }) {
     let finalUrl =
-      Note.prototype.currentWebId + Note.defaultCollectionPath + url;
+      Note.prototype.fullCollectionPath + url;
+    console.log("Thing", finalUrl, url);
+
+
+    try {
+      const noteDataset = await getSolidDataset(
+        finalUrl,
+        { fetch: fetch } // fetch from authenticated session
+      );
+      const noteThing = getThing(noteDataset, finalUrl + "#note");
+      let newNote = this.fromThing(noteThing);
+      return newNote;
+
+    } catch (e) {
+      console.log("Thing not found", e)
+      return false;
+
+    }
+
+  }
+}
+
+// Find
+
     // if (noteId) {
     //   url = this.defaultCollection + noteId;
     // } else if (noteUrl) {
@@ -187,14 +226,3 @@ export default class Note {
     // } else {
     //   throw new Error("Missing required Parameter");
     // }
-
-    const noteDataset = await getSolidDataset(
-      finalUrl,
-      { fetch: fetch } // fetch from authenticated session
-    );
-    const noteThing = getThing(noteDataset, finalUrl + "#note");
-
-    let newNote = this.fromThing(noteThing);
-    return newNote;
-  }
-}

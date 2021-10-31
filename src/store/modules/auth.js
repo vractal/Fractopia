@@ -13,6 +13,8 @@ const state = () => ({
   processingSilent: false,
   webId: null,
   sessionId: null,
+  storage: "public/fractopia/",
+  spaceStorage: "pessoal/"
 });
 
 // getters
@@ -35,20 +37,32 @@ const actions = {
     context.commit("setProcessing", false);
   },
   async initialSetup(context) {
-    var welcomeNote = new Note({
-      content: "# Benvindes a Fractopia",
-      title: "Bemvindes",
-      id: "index",
-    });
+    console.log('existentNote')
 
-    await welcomeNote.save();
-    if (!welcomeNote.new) context.commit("notes/setNote", welcomeNote);
+    var existentNote = await Note.find({ url: 'index' })
+    console.log('existentNote', existentNote)
+    if (!existentNote) {
+      var welcomeNote = new Note({
+        content: "# Benvindes a Fractopia",
+        title: "Bemvindes",
+        id: "index",
+      });
+      console.log('dentro existn', welcomeNote);
+
+      await welcomeNote.save();
+    }
+
+    context.dispatch("notes/getNote", { url: 'index' }, { root: true });
 
     // createContainer if not
     // create default workspaces
     // private
     // networked
     // set defaultcontext
+  },
+  setSpaceStorage(context, spaceStorage) {
+    context.commit('setSpaceStorage', spaceStorage);
+    context.dispatch('initialSetup');
   },
   async silentLogin(context) {
     context.commit("setProcessingSilent", true);
@@ -76,6 +90,9 @@ const mutations = {
 
     state.webId = webId;
   },
+  setSpaceStorage(state, spaceStorage) {
+    state.spaceStorage = spaceStorage;
+  }
 };
 
 export default {

@@ -25,14 +25,16 @@ const actions = {
   },
 
   async saveNote(context, noteData) {
+    console.log('save', noteData)
     let newNote = new Note({
       content: noteData.content,
       title: noteData.title,
       id: noteData.id,
+      noteUrl: noteData.noteUrl,
     });
     await newNote.save();
     console.log("Create", noteData, newNote);
-    // context.commit("setNote", newNote);
+    context.commit("setNote", newNote);
   },
 };
 

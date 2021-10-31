@@ -16,6 +16,11 @@
             <v-icon v-else> mdi-account-circle </v-icon>
           </v-btn>
           <p class="mt-2">{{ context.name }}</p>
+          <v-text-field
+            @blur="changeContext"
+            v-model="contextInput"
+            placeholder="@contexto"
+          />
         </div>
       </template>
       <logout-button />
@@ -30,16 +35,25 @@ import NewNoteButton from "./NewNoteButton.vue";
 export default {
   name: "ToolBar",
   components: { LogoutButton, NewNoteButton },
-  computed: {},
   data() {
     return {
       fab: false,
-      context: {
-        name: "@CONTEXTO",
-      },
+      contextInput: "",
     };
   },
+  computed: {
+    context() {
+      return this.$store.state.auth.spaceStorage;
+    },
+  },
+  created() {
+    this.contextInput = this.context;
+  },
 
-  methods: {},
+  methods: {
+    changeContext() {
+      this.$store.dispatch("auth/setSpaceStorage", this.contextInput);
+    },
+  },
 };
 </script>
