@@ -19,12 +19,13 @@ import {
 import { fetch } from "@inrupt/solid-client-authn-browser";
 import store from "@/store";
 
-export default class Note {
+export default class BaseSolidModel {
   rdfContexts = {
     schema: "https://schema.org/",
   };
 
   // static collection = "";
+  static collectionPath = "public/fractopia/notes/";
 
   // static get colection() {
   //   return this.collectionPodUrl + this.collectionPath;
@@ -32,10 +33,11 @@ export default class Note {
   // static get url() {
   //   return this.colection;
   // }
-  rdfsClasses = [schema.NoteDigitalDocument];
+  rdfsClasses = [schema.Thing];
 
   content = null;
   title = null;
+  a;
   dateCreated = null;
   lastModified = null;
   title = null;
@@ -46,16 +48,15 @@ export default class Note {
   get currentWebId() {
     return store.state.auth.webId?.replace("profile/card#me", "");
   }
-
-  static defaultCollectionPath = "notes/";
-  customCollectionPath = null;
+  static defaultCollectionPath = "public/fractopia/notes/";
+  customCollectionPath = "public/fractopia/notes/";
 
   get collectionPath() {
     return this.customCollectionPath || Note.defaultCollectionPath;
   }
 
   get currentSpacePath() {
-    return store.state.auth.storage + store.state.auth.spaceStorage;
+    return "";
   }
 
   get fullCollectionPath() {
@@ -86,39 +87,33 @@ export default class Note {
     },
   };
 
-  constructor({ id, title, content, noteUrl }) {
+  constructor({ id, title, content }) {
     this.title = title;
     this.content = content;
     this.new = true;
-    if (noteUrl === undefined || noteUrl === null) {
-      this.id = id || uuidv4();
-    } else {
-      this.url = noteUrl;
-    }
-
-    console.log("this.id", id, noteUrl);
+    this.id = id;
+    console.log("this.id", id);
   }
 
-  static fromThing(noteThing) {
-    console.log("noteThing", noteThing);
-    let note = new Note({});
+  static fromThing(modelThing) {
+    let model = new this.constructor(modelThing);
+    ({});
     note.content = getStringNoLocale(
-      noteThing,
+      modelThing,
       note.fieldsSchema.content.rdfType
     );
-    note.title = getStringNoLocale(noteThing, note.fieldsSchema.title.rdfType);
-    note.url = noteThing.url.replace("#note", ""); // not reliable
-    console.log("noteThing", note);
+    note.title = getStringNoLocale(modelThing, note.fieldsSchema.title.rdfType);
+    note.url = modelThing.url.replace("#note", ""); // not reliable
 
     note.collection = this.defaultCollection;
     note.new = false;
-    return note;
   }
 
+  getWithCorrectType() {}
+
   addWithCorrectType(thing, field, value) {
-    switch (this.fieldsSchema[field].rdfType) {
+    switch (this.fieldsSchema[field]?.rdfType) {
       case schema.text:
-        console.log("Case", schema.text);
         return addStringNoLocale(
           thing,
           this.fieldsSchema[field].rdfType,
@@ -133,45 +128,42 @@ export default class Note {
     }
   }
   async save() {
-    console.log("SAVE:");
-
-    let noteDataset;
-    let noteThing;
+    let modelDataset;
+    let modelThing;
     let url = this.fullDatasetPath;
     if (this.new) {
       // Create
-      noteDataset = createSolidDataset();
-      noteThing = createThing({ name: "note" });
+      modelDataset = createSolidDataset();
+      modelThing = buildThing(createThing({ name: "note" }))
+        .addUrl(rdf.type, this.rdfsClasses[0])
+        .build();
 
-      noteThing = addUrl(noteThing, rdf.type, this.rdfsClasses[0]);
+      modelDataset = setThing(modelDataset, modelThing);
 
       for (let field in this.fieldsSchema) {
         if (this[field]) {
-          noteThing = this.addWithCorrectType(noteThing, field, this[field]);
+          this.addWithCorrectType(modelThing, field, this.fieldsSchema[field]);
         }
       }
-      noteDataset = setThing(noteDataset, noteThing);
     } else {
       // Update
-      noteDataset = await getSolidDataset(this.fullDatasetPath);
-      noteThing = getThing(noteDataset, this.fullDatasetPath + "#note");
+      modelDataset = await getSolidDataset(this.fullDatasetPath);
+      modelThing = getThing(modelDataset, this.fullDatasetPath + "#note");
       for (let field in noteData) {
         if (field === null) {
           // nada?
         } else if (this.fieldsSchema.contains(field)) {
-          noteThing = this.addWithCorrectType(noteThing, field);
+          modelThing = this.addWithCorrectType(modelThing, field);
         } else {
           console.warn("Unknown parameter for Note Class", field);
         }
       }
     }
 
-    console.log("SAVE:", noteThing, this.fullDatasetPath);
-
     try {
       await saveSolidDatasetAt(
         this.fullDatasetPath,
-        noteDataset,
+        modelDataset,
         { fetch: fetch } // fetch from authenticated Session
       );
       this.new = false;
@@ -187,31 +179,28 @@ export default class Note {
     }
   }
 
-  static async find({ url }) {
-    let finalUrl = Note.prototype.fullCollectionPath + url;
-    console.log("Thing", finalUrl, url);
+  create() {}
 
-    try {
-      const noteDataset = await getSolidDataset(
-        finalUrl,
-        { fetch: fetch } // fetch from authenticated session
-      );
-      const noteThing = getThing(noteDataset, finalUrl + "#note");
-      let newNote = this.fromThing(noteThing);
-      return newNote;
-    } catch (e) {
-      console.log("Thing not found", e);
-      return false;
-    }
+  static async find({ url }) {
+    let finalUrl =
+      BaseSolidModel.prototype.currentWebId +
+      BaseSolidModel.defaultCollectionPath +
+      url;
+    // if (noteId) {
+    //   url = this.defaultCollection + noteId;
+    // } else if (noteUrl) {
+    //   url = noteUrl;
+    // } else {
+    //   throw new Error("Missing required Parameter");
+    // }
+
+    const modelDataset = await getSolidDataset(
+      finalUrl,
+      { fetch: fetch } // fetch from authenticated session
+    );
+    const modelThing = getThing(noteDataset, finalUrl + "#note");
+
+    let newModel = this.fromThing(modelThing);
+    return newModel;
   }
 }
-
-// Find
-
-// if (noteId) {
-//   url = this.defaultCollection + noteId;
-// } else if (noteUrl) {
-//   url = noteUrl;
-// } else {
-//   throw new Error("Missing required Parameter");
-// }
