@@ -30,7 +30,7 @@
 <script>
 export default {
   data: () => ({
-    localContent: null,
+    localContent: "",
     title: "",
     md: null,
     editorToggle: false,
@@ -69,11 +69,7 @@ export default {
   },
 
   methods: {
-    getNote() {
-      this.$store.dispatch("notes/getNote");
-    },
     postNote() {
-      console.log("event", this.$store.state.notes.activeNote);
       this.$store.dispatch("notes/saveNote", {
         content: this.localContent,
         title: this.title,

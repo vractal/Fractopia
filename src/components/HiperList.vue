@@ -1,5 +1,5 @@
 <template>
-  <v-sheet rounded elevation="1" width="300" class="mx-4">
+  <v-sheet id="2" rounded elevation="1" width="300" class="mx-4">
     <v-treeview
       v-model="tree"
       :open="initiallyOpen"
@@ -23,13 +23,11 @@
   </v-sheet>
 </template>
 <script>
-import { fetch } from "@inrupt/solid-client-authn-browser";
-import FC from "solid-file-client";
-const fc = new FC({ fetch });
-
+// import { fetch } from "@inrupt/solid-client-authn-browser";
+import HiperFolder from "@/models/HiperFolder";
 export default {
   created() {
-    this.fetchInitial();
+    this.fetchInitial(this.indexUrl);
   },
   data: () => ({
     active: [],
@@ -48,22 +46,27 @@ export default {
     items: [],
   }),
   watch: {
-    active(newValue) {
+    active(newValue, oldValue) {
       if (newValue.length > 0) {
         this.$store.dispatch("notes/getNote", newValue[0]);
       }
+      console.log("oldValue", oldValue, newValue);
     },
     url() {
-      this.fetchInitial();
+      this.fetchInitial(this.indexUrl);
     },
   },
   computed: {
     url() {
       return this.$store.getters["auth/fullSpaceUrl"];
     },
+    indexUrl() {
+      return this.url + "hiperfolders/index";
+    },
   },
   methods: {
-    async parseFileTree(path, level = 0, maxLevels = 0) {
+    async parseFileTree(path, level = 0, maxLevels) {
+      console.log("treeParser", level, path);
       const isLastLevel = level === maxLevels;
       level += 1;
 
@@ -121,16 +124,25 @@ export default {
     },
     async get(url) {
       try {
-        const folder = await fc.readFolder(url);
-        return folder;
+        // const folder = await fc.readFolder(url);
+
+        const folder = await HiperFolder.find(url);
+        let children = folder.items.map((hiperItem) => ({
+          name: hiperItem.name,
+          url: hiperItem.url,
+          file: "md",
+        }));
+        console.log("folder", children, folder);
+        return { name: folder.name, files: children };
       } catch (e) {
-        console.warn(e);
+        // console.warn(e);
         return {};
+        // return {};
       }
     },
 
     async fetchInitial() {
-      this.items = await this.parseFileTree(this.url, 0, 1);
+      this.items = await this.parseFileTree(this.indexUrl, 0, 1);
     },
     async load(event) {
       var children = await this.parseFileTree(event.url, 0, 1);
@@ -138,6 +150,7 @@ export default {
       const modifyTreeNodeByUrl = (url, array, newField = {}) => {
         let newArray = [];
         for (const item of array) {
+          console.log("item", item.url, url);
           if (item.url === url) {
             newArray.push({ ...item, ...newField });
           } else if (item.children && item.children.length > 0) {
@@ -152,6 +165,7 @@ export default {
         return newArray;
       };
       this.items = modifyTreeNodeByUrl(event.url, this.items, { children });
+      console.log("this.items", this.items);
     },
   },
 };

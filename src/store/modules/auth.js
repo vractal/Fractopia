@@ -6,6 +6,8 @@ import {
   getDefaultSession,
 } from "@inrupt/solid-client-authn-browser";
 import Note from "../../models/Note";
+import HiperFolder from "../../models/HiperFolder";
+import { getPodUrlFromWebId } from "@/utils/utils";
 
 // initial state
 const state = () => ({
@@ -13,12 +15,25 @@ const state = () => ({
   processingSilent: false,
   webId: null,
   sessionId: null,
-  storage: "public/fractopia/",
-  spaceStorage: "pessoal/"
+  fractopiaStoragePrefix: "public/temp/fractopia/",
+  spaceStoragePrefix: "pessoal/",
+  hiperFolderPrefix: "hiperfolders/",
 });
 
 // getters
-const getters = {};
+const getters = {
+  podUrl() {
+    return getPodUrlFromWebId(state.webId);
+  },
+  fullSpaceUrl(state) {
+    return (
+      getPodUrlFromWebId(state.webId) +
+      state.fractopiaStoragePrefix +
+      state.spaceStoragePrefix
+    );
+    // check if url is from current space
+  },
+};
 
 // actions
 const actions = {
@@ -37,22 +52,37 @@ const actions = {
     context.commit("setProcessing", false);
   },
   async initialSetup(context) {
-    console.log('existentNote')
+    // console.log('existentNote')
 
-    var existentNote = await Note.find({ url: 'index' })
-    console.log('existentNote', existentNote)
+    var existentNote = await Note.find(
+      context.getters.fullSpaceUrl + "notes/" + "index"
+    );
+    // console.log()
+    // var existent = await HiperFolder.find(context.getters.fullSpaceUrl + );
+    console.log("initial", context.getters.fullSpaceUrl, existentNote);
+    var hiperFolder = new HiperFolder({
+      id: "index",
+      url: context.getters.fullSpaceUrl + "hiperfolders/index",
+      name: "Index",
+      itemTypes: [HiperFolder],
+    });
+
+    await hiperFolder.save();
+
     if (!existentNote) {
       var welcomeNote = new Note({
         content: "# Benvindes a Fractopia",
         title: "Bemvindes",
         id: "index",
       });
-      console.log('dentro existn', welcomeNote);
+      welcomeNote.addFolder(hiperFolder.url);
 
       await welcomeNote.save();
     }
 
-    context.dispatch("notes/getNote", { url: 'index' }, { root: true });
+    context.dispatch("notes/getNote", context.getters.fullSpaceUrl + "index", {
+      root: true,
+    });
 
     // createContainer if not
     // create default workspaces
@@ -61,8 +91,8 @@ const actions = {
     // set defaultcontext
   },
   setSpaceStorage(context, spaceStorage) {
-    context.commit('setSpaceStorage', spaceStorage);
-    context.dispatch('initialSetup');
+    context.commit("setSpaceStorage", spaceStorage);
+    context.dispatch("initialSetup");
   },
   async silentLogin(context) {
     context.commit("setProcessingSilent", true);
@@ -91,8 +121,8 @@ const mutations = {
     state.webId = webId;
   },
   setSpaceStorage(state, spaceStorage) {
-    state.spaceStorage = spaceStorage;
-  }
+    state.spaceStoragePrefix = spaceStorage;
+  },
 };
 
 export default {

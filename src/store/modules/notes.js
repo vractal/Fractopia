@@ -15,8 +15,8 @@ const getters = {};
 // actions
 const actions = {
   //
-  async getNote(context, query) {
-    let note = await Note.find(query);
+  async getNote(context, url) {
+    let note = await Note.find(url);
     context.commit("setNote", note);
   },
   createNote(context) {
@@ -25,13 +25,16 @@ const actions = {
   },
 
   async saveNote(context, noteData) {
-    console.log('save', noteData)
+    console.log("save", noteData);
     let newNote = new Note({
       content: noteData.content,
       title: noteData.title,
-      id: noteData.id,
       noteUrl: noteData.noteUrl,
     });
+    newNote.addFolder(
+      context.getters["auth/fullSpaceUrl"] + "hiperfolders/" + "index"
+    );
+    console.log("url", newNote);
     await newNote.save();
     console.log("Create", noteData, newNote);
     context.commit("setNote", newNote);
