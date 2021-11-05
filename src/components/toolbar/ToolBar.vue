@@ -43,7 +43,7 @@ export default {
   },
   computed: {
     context() {
-      return this.$store.state.auth.spaceStorage;
+      return this.$store.state.auth.spaceStoragePrefix;
     },
   },
   created() {

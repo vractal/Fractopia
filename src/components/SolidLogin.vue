@@ -1,33 +1,35 @@
 <i18n src="@/common/locales.json"></i18n>
 <template>
-  <v-container>
-    <v-row class="d-flex justify-center text-center">
-      <v-sheet elevation="1" width="700" class="solid-login" padding="1">
-        <h1>Fractopia</h1>
+  <div class="d-flex align-center">
+    <v-sheet
+      elevation="1"
+      width="700"
+      class="d-flex text-center solid-login"
+      padding="1"
+    >
+      <h1>Fractopia</h1>
 
-        <v-form @submit="login">
-          <v-text-field
-            label="Url do Pod"
-            placeholder="Ex: https://exemplo.fractopia.org"
-            v-model="userUrl"
-          />
-          <v-btn color="primary" @click="login" :loading="loading">
-            Login
-          </v-btn>
-        </v-form>
-      </v-sheet>
-    </v-row>
-  </v-container>
+      <v-form @submit="login">
+        <v-text-field
+          label="Url do Pod"
+          placeholder="Ex: https://exemplo.fractopia.org"
+          v-model="userUrl"
+        />
+        <v-btn color="primary" @click="login" :loading="loading">
+          Login
+        </v-btn>
+      </v-form>
+    </v-sheet>
+  </div>
 </template>
 
 <script>
-import { VBtn, VContainer } from "vuetify/lib";
+import { VBtn } from "vuetify/lib";
 
 export default {
   name: "SolidLogin",
   components: {
     VBtn,
-    VContainer,
   },
   data() {
     return {

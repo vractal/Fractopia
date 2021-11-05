@@ -7,7 +7,7 @@
     rounded
   >
     <div v-if="note !== null" class="d-flex flex-column justify-space-between">
-      <v-text-field v-model="title" @blur="postNote" />
+      <v-text-field :disabled="!editorToggle" v-model="title" />
       <v-md-editor
         v-model="localContent"
         :mode="mode"
@@ -28,14 +28,19 @@
   </v-sheet>
 </template>
 <script>
+import { debounce } from "lodash";
 export default {
+  created() {},
   data: () => ({
-    localContent: null,
+    localContent: "",
     title: "",
     md: null,
     editorToggle: false,
   }),
   computed: {
+    debouncedPostNote() {
+      return debounce(this.postNote, 500);
+    },
     mode() {
       return this.editorToggle ? "edit" : "preview";
     },
@@ -49,7 +54,7 @@ export default {
   watch: {
     editorToggle() {
       if (!this.editorToggle) {
-        this.postNote();
+        this.debouncedPostNote();
         // /this.localContent;
       } else {
         this.localContent = this.note;
@@ -69,17 +74,18 @@ export default {
   },
 
   methods: {
-    getNote() {
-      this.$store.dispatch("notes/getNote");
-    },
     postNote() {
-      console.log("event", this.$store.state.notes.activeNote);
       this.$store.dispatch("notes/saveNote", {
         content: this.localContent,
         title: this.title,
         noteUrl: this.$store.state.notes.activeNote?.url,
-        id: this.$store.state.notes.activeNote?.id,
       });
+      console.log("postNote: ", this.$store.state.notes.activeNote);
+    },
+
+    throttledPostNote() {
+      this.postNote();
+      // return throttle(this.postNote, 1000, { trailing: true });
     },
   },
 };

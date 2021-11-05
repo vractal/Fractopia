@@ -6,19 +6,34 @@ import {
   getDefaultSession,
 } from "@inrupt/solid-client-authn-browser";
 import Note from "../../models/Note";
+import HiperFolder from "../../models/HiperFolder";
+import { getPodUrlFromWebId } from "@/utils/utils";
 
 // initial state
 const state = () => ({
   processing: false,
   processingSilent: false,
   webId: null,
+  fractopiaStoragePrefix: "public/fractopia/beta/",
+  spaceStoragePrefix: "pessoal/",
+  hiperFolderPrefix: "hiperfolders/",
   sessionId: null,
-  storage: "public/fractopia/",
-  spaceStorage: "pessoal/"
 });
 
 // getters
-const getters = {};
+const getters = {
+  podUrl() {
+    return getPodUrlFromWebId(state.webId);
+  },
+  fullSpaceUrl(state) {
+    return (
+      getPodUrlFromWebId(state.webId) +
+      state.fractopiaStoragePrefix +
+      state.spaceStoragePrefix
+    );
+    // check if url is from current space
+  },
+};
 
 // actions
 const actions = {
@@ -37,22 +52,69 @@ const actions = {
     context.commit("setProcessing", false);
   },
   async initialSetup(context) {
-    console.log('existentNote')
+    // console.log('existentNote')
+    // search for index note
+    var existentNote = await Note.find(
+      context.getters.fullSpaceUrl + "notes/" + "index"
+    );
+    // console.log()
+    // var existent = await HiperFolder.find(context.getters.fullSpaceUrl + );
 
-    var existentNote = await Note.find({ url: 'index' })
-    console.log('existentNote', existentNote)
+    // verifies if index hiperfolder already exists
+    // otherwise, creates one
+    var indexFolder = await HiperFolder.find(
+      context.getters.fullSpaceUrl + "hiperfolders/" + "index"
+    )
+
+    if (!indexFolder) {
+
+      indexFolder = new HiperFolder({
+        id: "index",
+        url: context.getters.fullSpaceUrl + "hiperfolders/index",
+        name: "Index",
+        itemTypes: [HiperFolder],
+      });
+
+      await indexFolder.save();
+    }
+    console.log("indexFolder: ", indexFolder)
+
+    // verifies if there is any object of type container inside indexFolder
+    let targetFolder = null
+    for (let item of indexFolder.items) {
+      if (item.type === indexFolder.rdfsClasses[0]) {
+        targetFolder = new HiperFolder({ url: item.url })
+      }
+    }
+    if (!targetFolder) {
+      targetFolder = new HiperFolder({
+        name: "Notas",
+        itemTypes: [HiperFolder],
+      });
+      targetFolder = await targetFolder.save();
+    }
+    await indexFolder.addReference({
+      name: targetFolder.name,
+      url: targetFolder.url,
+      type: targetFolder.rdfsClasses[0]
+    });
+
+    // creates index note if there is none
     if (!existentNote) {
       var welcomeNote = new Note({
         content: "# Benvindes a Fractopia",
         title: "Bemvindes",
         id: "index",
       });
-      console.log('dentro existn', welcomeNote);
+      // add note backlink to hiperfolder list
+      welcomeNote.addFolder(targetFolder.url);
 
       await welcomeNote.save();
     }
 
-    context.dispatch("notes/getNote", { url: 'index' }, { root: true });
+    context.dispatch("notes/getNote", context.getters.fullSpaceUrl + "index", {
+      root: true,
+    });
 
     // createContainer if not
     // create default workspaces
@@ -61,8 +123,8 @@ const actions = {
     // set defaultcontext
   },
   setSpaceStorage(context, spaceStorage) {
-    context.commit('setSpaceStorage', spaceStorage);
-    context.dispatch('initialSetup');
+    context.commit("setSpaceStorage", spaceStorage);
+    context.dispatch("initialSetup");
   },
   async silentLogin(context) {
     context.commit("setProcessingSilent", true);
@@ -91,8 +153,8 @@ const mutations = {
     state.webId = webId;
   },
   setSpaceStorage(state, spaceStorage) {
-    state.spaceStorage = spaceStorage;
-  }
+    state.spaceStoragePrefix = spaceStorage;
+  },
 };
 
 export default {

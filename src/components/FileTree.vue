@@ -5,7 +5,7 @@
       :open="initiallyOpen"
       :items="items"
       activatable
-      item-key="name"
+      item-key="url"
       open-on-click
       :load-children="load"
       :active.sync="active"
@@ -48,11 +48,10 @@ export default {
     items: [],
   }),
   watch: {
-    active(newValue, oldValue) {
+    active(newValue) {
       if (newValue.length > 0) {
-        this.$store.dispatch("notes/getNote", { url: newValue[0] });
+        this.$store.dispatch("notes/getNote", newValue[0]);
       }
-      console.log("oldValue", oldValue, newValue);
     },
     url() {
       this.fetchInitial();
@@ -60,16 +59,11 @@ export default {
   },
   computed: {
     url() {
-      return (
-        this.$store.state.auth.webId?.replace("profile/card#me", "") +
-        this.$store.state.auth.storage +
-        this.$store.state.auth.spaceStorage
-      );
+      return this.$store.getters["auth/fullSpaceUrl"];
     },
   },
   methods: {
-    async parseFileTree(path, level = 0, maxLevels) {
-      console.log("treeParser", level, path);
+    async parseFileTree(path, level = 0, maxLevels = 0) {
       const isLastLevel = level === maxLevels;
       level += 1;
 
@@ -137,7 +131,6 @@ export default {
 
     async fetchInitial() {
       this.items = await this.parseFileTree(this.url, 0, 1);
-      console.log("initial", this.items);
     },
     async load(event) {
       var children = await this.parseFileTree(event.url, 0, 1);
@@ -145,7 +138,6 @@ export default {
       const modifyTreeNodeByUrl = (url, array, newField = {}) => {
         let newArray = [];
         for (const item of array) {
-          console.log("item", item.url, url);
           if (item.url === url) {
             newArray.push({ ...item, ...newField });
           } else if (item.children && item.children.length > 0) {
@@ -160,7 +152,6 @@ export default {
         return newArray;
       };
       this.items = modifyTreeNodeByUrl(event.url, this.items, { children });
-      console.log("this.items", this.items);
     },
   },
 };
