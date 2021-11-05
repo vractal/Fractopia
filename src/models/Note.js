@@ -23,10 +23,12 @@ import { fetch } from "@inrupt/solid-client-authn-browser";
 import store from "@/store";
 import HiperFolder from "./HiperFolder";
 import { parseFractopiaUrl } from "@/utils/utils";
+
 export default class Note {
-  rdfContexts = {
-    schema: "https://schema.org/",
-  };
+
+  // rdfContexts = {
+  //   schema: "https://schema.org/",
+  // };
 
   // static collection = "";
 
@@ -36,6 +38,9 @@ export default class Note {
   // static get url() {
   //   return this.colection;
   // }
+
+  // definition of rdfClass used by notes
+  // for now, uses first element of list [0]
   rdfsClasses = [schema.NoteDigitalDocument];
   hiperFolders = [];
   content = null;
@@ -67,6 +72,8 @@ export default class Note {
   }
 
   get fullDatasetPath() {
+    // if it has url, uses it
+    // otherwise, creates a new one
     return this.url ? this.url : this.fullCollectionPath + this.id;
   }
   url = null;
@@ -98,7 +105,7 @@ export default class Note {
     if (url === undefined || url === null) {
       this.id = id || uuidv4();
       this.url =
-        store.getters["auth/fullSpaceUrl"] + Note.defaultCollectionPrefix + id;
+        store.getters["auth/fullSpaceUrl"] + Note.defaultCollectionPrefix + this.id;
     } else {
       this.url = url;
     }
@@ -212,6 +219,7 @@ export default class Note {
   static async find(url) {
     let { fullUrl } = parseFractopiaUrl(url, this.defaultCollectionPrefix);
 
+    console.log('fullURL: ', fullUrl)
     try {
       const noteDataset = await getSolidDataset(
         fullUrl,

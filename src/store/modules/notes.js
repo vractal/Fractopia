@@ -29,7 +29,7 @@ const actions = {
     let newNote = new Note({
       content: noteData.content,
       title: noteData.title,
-      noteUrl: noteData.noteUrl,
+      url: noteData.noteUrl,
     });
     newNote.addFolder(
       context.getters["auth/fullSpaceUrl"] + "hiperfolders/" + "index"
@@ -44,6 +44,7 @@ const actions = {
 // mutations
 const mutations = {
   setNote(state, newNote) {
+    // muda a nota ativa
     state.activeNote = newNote;
   },
 };

@@ -14,10 +14,10 @@ const state = () => ({
   processing: false,
   processingSilent: false,
   webId: null,
-  sessionId: null,
   fractopiaStoragePrefix: "public/temp/fractopia/",
   spaceStoragePrefix: "pessoal/",
   hiperFolderPrefix: "hiperfolders/",
+  sessionId: null,
 });
 
 // getters
@@ -59,15 +59,26 @@ const actions = {
     );
     // console.log()
     // var existent = await HiperFolder.find(context.getters.fullSpaceUrl + );
-    console.log("initial", context.getters.fullSpaceUrl, existentNote);
-    var hiperFolder = new HiperFolder({
-      id: "index",
-      url: context.getters.fullSpaceUrl + "hiperfolders/index",
-      name: "Index",
-      itemTypes: [HiperFolder],
-    });
 
-    await hiperFolder.save();
+    // verifica se existe pasta com lista
+    // se não tiver, cria
+
+    var hiperFolder = await HiperFolder.find(
+      context.getters.fullSpaceUrl + "hiperfolders/" + "index"
+    )
+
+    if (!hiperFolder) {
+
+      hiperFolder = new HiperFolder({
+        id: "index",
+        url: context.getters.fullSpaceUrl + "hiperfolders/index",
+        name: "Index",
+        itemTypes: [HiperFolder],
+      });
+
+      await hiperFolder.save();
+    }
+
 
     if (!existentNote) {
       var welcomeNote = new Note({

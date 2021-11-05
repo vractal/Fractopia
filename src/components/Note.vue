@@ -76,6 +76,7 @@ export default {
         noteUrl: this.$store.state.notes.activeNote?.url,
         id: this.$store.state.notes.activeNote?.id,
       });
+      console.log('postNote: ', this.$store.state.notes.activeNote)
     },
   },
 };
