@@ -7,6 +7,7 @@ import Note from "@/models/Note";
 const state = () => ({
   processing: false,
   activeNote: null,
+  openedNotes: [] // { title, url }
 
 });
 
@@ -20,17 +21,18 @@ const actions = {
     let note = await Note.find(url);
     context.commit("setNote", note);
   },
-  createNote(context) {
-    context.commit("setNote", { content: "", title: "" });
+  createNote(context, parentUrl) {
+    context.commit("setNote", { content: "", title: "", hiperFolders: [parentUrl] });
+    // console.log('createNote', context, parentUrl, context.rootState.hiperfolder.activeFolder);
   },
 
-  async saveNote(context, { noteUrl, ...noteData }) {
+  async saveNote(context, { noteUrl, parentUrl, ...noteData }) {
     let note;
     // if (noteUrl) {
     note = await Note.find(noteUrl)
     // }
 
-    console.log('notesaveantes', note)
+    console.log('notesaveantes', parentUrl)
     if (!note) {
       note = new Note({
         content: noteData.content,
@@ -43,9 +45,8 @@ const actions = {
     console.log('notesdepois', note)
 
     if (note.hiperFolders.length === 0) {
-      note.addFolder(
-        context.rootGetters["auth/fullSpaceUrl"] + "hiperfolders/" + "index"
-      );
+      let folderUrl = parentUrl ? parentUrl : context.rootGetters["auth/fullSpaceUrl"] + "hiperfolders/" + "index"
+      note.addFolder(folderUrl);
     }
     note = await note.save();
     context.commit('setNote', note)
@@ -57,6 +58,10 @@ const mutations = {
   setNote(state, newNote) {
     // muda a nota ativa
     state.activeNote = newNote;
+    if (!(newNote.title === "" && newNote.title === "")) {
+      state.openedNotes.push({ title: newNote.title, url: newNote.url });
+
+    }
   },
 };
 

@@ -2,13 +2,15 @@
   <v-sheet id="2" rounded elevation="1" width="300" class="mx-4">
     <v-treeview
       v-model="tree"
-      :open="initiallyOpen"
+      :open="openFolders"
       :items="items"
       activatable
       item-key="url"
-      open-on-click
       :load-children="load"
       :active.sync="active"
+      return-object
+      rounded
+      @update:open="onOpenFolderChange"
     >
       <template v-slot:prepend="{ item, open }">
         <v-icon v-if="!item.file">
@@ -20,7 +22,9 @@
       </template>
     </v-treeview>
     <v-btn small @click="fetchInitial"><v-icon>mdi-refresh</v-icon></v-btn>
-    <v-btn small @click="createFolder"><v-icon>mdi-plus</v-icon></v-btn>
+    <v-btn small @click="createFolder"><v-icon>mdi-folder-plus</v-icon></v-btn>
+    <v-btn small @click="createNote"><v-icon>mdi-text-box-plus</v-icon></v-btn>
+
     <v-text-field v-model="folderNameInput" placeholder="Type folder name" />
   </v-sheet>
 </template>
@@ -28,7 +32,9 @@
 // import { fetch } from "@inrupt/solid-client-authn-browser";
 //
 import HiperFolder from "@/models/HiperFolder";
-import { rdf } from "rdf-namespaces";
+// import Note from "@/models/Note";
+
+import { rdf, schema } from "rdf-namespaces";
 import { parseFolderItemType } from "@/utils/utils";
 export default {
   created() {
@@ -36,7 +42,7 @@ export default {
   },
   data: () => ({
     active: [],
-    initiallyOpen: ["public"],
+    openFolders: [],
     files: {
       md: "mdi-language-markdown",
       pdf: "mdi-file-pdf",
@@ -50,13 +56,29 @@ export default {
     tree: [],
     items: [],
     folderNameInput: "",
+    selectedFolder: null,
   }),
   watch: {
-    active(newValue, oldValue) {
+    active(newValue) {
       if (newValue.length > 0) {
-        this.$store.dispatch("notes/getNote", newValue[0]);
+        console.log("value", newValue[0]);
+        if (newValue[0].type == schema.NoteDigitalDocument) {
+          this.$store.dispatch("notes/getNote", newValue[0].url);
+        } else {
+          if (!newValue[0]?.type) {
+            this.selectedFolder = newValue[0].url;
+            this.$store.dispatch(
+              "hiperfolder/changeActiveFolder",
+              this.selectedFolder
+            );
+          }
+        }
+      } else {
+        this.selectedFolder = null;
       }
-      console.log("oldValue", oldValue, newValue);
+    },
+    openFolders(newValue) {
+      console.log("watchHiperlist", newValue, this.openFolders);
     },
     url() {
       this.fetchInitial(this.indexUrl);
@@ -140,7 +162,7 @@ export default {
     },
 
     async fetchInitial() {
-      this.items = await this.parseFileTree(this.indexUrl, 0, 1);
+      this.items = await this.parseFileTree(this.indexUrl, 0, 2);
     },
 
     async load(event) {
@@ -164,16 +186,21 @@ export default {
         return newArray;
       };
       this.items = modifyTreeNodeByUrl(event.url, this.items, { children });
-      console.log("this.items", this.items);
+    },
+    onOpenFolderChange(folders) {
+      console.log("folders", folders);
+    },
+    createNote() {
+      this.$store.dispatch("notes/createNote", this.selectedFolder);
     },
 
     async createFolder() {
       // create new subfolder in desired location
       this.$store.dispatch("hiperfolder/createFolder", {
         folderName: this.folderNameInput,
-        parentUrl: this.indexUrl,
+        parentUrl: this.selectedFolder || this.indexUrl,
       });
-      console.log("create folder: ", this.folderNameInput, this.indexUrl);
+
       // cleans text field
       this.folderNameInput = "";
     },

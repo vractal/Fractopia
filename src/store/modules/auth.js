@@ -14,7 +14,7 @@ const state = () => ({
   processing: false,
   processingSilent: false,
   webId: null,
-  fractopiaStoragePrefix: "public/fractopia/beta/",
+  fractopiaStoragePrefix: "public/fractopia/alfa/",
   spaceStoragePrefix: "pessoal/",
   hiperFolderPrefix: "hiperfolders/",
   sessionId: null,

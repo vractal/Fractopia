@@ -6,9 +6,16 @@
     max-width="900"
     rounded
   >
-    <div v-if="note !== null" class="d-flex flex-column justify-space-between">
+    <div
+      @keyup.@="pressedKey"
+      @keyup.esc="pressed = false"
+      v-on:keyup.ctrl.69="editorShortcut"
+      v-if="note !== null"
+      class="d-flex flex-column justify-space-between"
+    >
       <v-text-field :disabled="!editorToggle" v-model="title" />
       <v-md-editor
+        ref="editor"
         v-model="localContent"
         :mode="mode"
         tolbar="{}"
@@ -25,10 +32,27 @@
         </v-switch>
       </div>
     </div>
+    <div v-if="pressed" class="d-flex flex-row" @keyup.esc="pressed = false">
+      <v-autocomplete
+        return-object
+        autofocus
+        outlined
+        dense
+        :items="recentLinksItems"
+        v-model="linkInput"
+        placeholed="Note name..."
+      />
+      <v-btn small rounded @click="createLink"
+        ><v-icon>mdi-check</v-icon></v-btn
+      >
+      <v-btn small rounded @click="pressed = false"
+        ><v-icon>mdi-close</v-icon></v-btn
+      >
+    </div>
   </v-sheet>
 </template>
 <script>
-import { debounce } from "lodash";
+import { debounce, filter, map } from "lodash";
 export default {
   created() {},
   data: () => ({
@@ -36,8 +60,20 @@ export default {
     title: "",
     md: null,
     editorToggle: false,
+    pressed: false,
+    linkInput: null,
+    lastCursorPosition: 0,
   }),
   computed: {
+    recentLinksItems() {
+      return filter(
+        map(this.$store.state.notes.openedNotes, (note) => ({
+          text: note.title,
+          value: note.url,
+        })),
+        "text"
+      );
+    },
     debouncedPostNote() {
       return debounce(this.postNote, 500);
     },
@@ -79,13 +115,51 @@ export default {
         content: this.localContent,
         title: this.title,
         noteUrl: this.$store.state.notes.activeNote?.url,
+        parentUrl: this.$store.state.hiperfolder.activeFolder,
       });
       console.log("postNote: ", this.$store.state.notes.activeNote);
+    },
+    pressedKey(value) {
+      this.pressed = true;
+      this.lastCursorPosition = value.target.selectionStart;
+      console.log("press", value);
+    },
+    editorShortcut() {
+      this.editorToggle = !this.editorToggle;
+    },
+    createLink() {
+      this.pressed = false;
+      if (this.linkInput) {
+        let text = `[${this.linkInput.text}](${this.linkInput.value})`;
+        this.execInsertText(text, this.lastCursorPosition);
+        this.linkInput = null;
+      }
     },
 
     throttledPostNote() {
       this.postNote();
       // return throttle(this.postNote, 1000, { trailing: true });
+    },
+    execInsertText(insertText) {
+      if (!insertText.length) return;
+      // const textarea = this.$refs.editor.$refs.editorEngine;
+      console.log("this.$refs", insertText);
+      this.localContent = this.localContent + insertText;
+      // const sentence = this.localContent;
+      // const len = sentence.length;
+      // let pos = selectionStart;
+      // if (pos === undefined) {
+      //   pos = 0;
+      // }
+
+      // const before = sentence.substr(0, pos);
+      // const after = sentence.substr(pos, len);
+
+      // this.value = before + insertText + after;
+
+      // this.$nextTick().then(() => {
+      //   textarea.selectionStart = pos + insertText.length;
+      // });
     },
   },
 };

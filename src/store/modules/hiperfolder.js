@@ -2,7 +2,7 @@ import HiperFolder from "@/models/HiperFolder";
 
 // initial state
 const state = () => ({
-    activeFolder: null,
+    activeFolder: null, // url
     todos: [],
     //Storage / Browser
 });
@@ -12,27 +12,31 @@ const getters = {};
 
 // actions
 const actions = {
+    // set active folder globally 
+    changeActiveFolder(context, folderUrl) {
+        context.commit('setActiveFolder', folderUrl)
+    },
     //create new subhiperfolder
     async createFolder(context, { folderName, parentUrl }) {
         console.log("start createfolder: ", folderName, parentUrl)
         // verifies if index hiperfolder already exists
         // otherwise, creates one
-        var indexFolder = await HiperFolder.find(
-            context.rootGetters['auth/fullSpaceUrl'] + "hiperfolders/" + "index"
+        var parentFolder = await HiperFolder.find(
+            parentUrl,
         )
 
-        if (!indexFolder) {
+        if (!parentFolder) {
 
-            indexFolder = new HiperFolder({
+            parentFolder = new HiperFolder({
                 id: "index",
                 url: context.rootGetters['auth/fullSpaceUrl'] + "hiperfolders/index",
                 name: "Index",
                 itemTypes: [HiperFolder],
             });
 
-            await indexFolder.save();
+            await parentFolder.save();
         }
-        console.log("indexFolder: ", indexFolder)
+        console.log("parentFolder: ", parentFolder)
 
         // create and save new folder
         let newFolder = new HiperFolder({
@@ -40,14 +44,14 @@ const actions = {
         })
 
         newFolder = await newFolder.save()
-        await indexFolder.addReference({
+        await parentFolder.addReference({
             name: newFolder.name,
             url: newFolder.url,
             type: newFolder.rdfsClasses[0]
         });
 
 
-        console.log('createfolder', indexFolder, newFolder)
+        console.log('createfolder', parentFolder, newFolder)
 
     },
 
@@ -56,7 +60,9 @@ const actions = {
 
 // mutations
 const mutations = {
-
+    setActiveFolder(state, folderUrl) {
+        state.activeFolder = folderUrl
+    }
 };
 
 export default {
