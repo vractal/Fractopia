@@ -20,11 +20,16 @@
       </template>
     </v-treeview>
     <v-btn small @click="fetchInitial"><v-icon>mdi-refresh</v-icon></v-btn>
+    <v-btn small @click="createFolder"><v-icon>mdi-plus</v-icon></v-btn>
+    <v-text-field v-model="folderNameInput" placeholder="Type folder name" />
   </v-sheet>
 </template>
 <script>
 // import { fetch } from "@inrupt/solid-client-authn-browser";
+//
 import HiperFolder from "@/models/HiperFolder";
+import { rdf } from "rdf-namespaces";
+import { parseFolderItemType } from "@/utils/utils";
 export default {
   created() {
     this.fetchInitial(this.indexUrl);
@@ -44,6 +49,7 @@ export default {
     },
     tree: [],
     items: [],
+    folderNameInput: "",
   }),
   watch: {
     active(newValue, oldValue) {
@@ -80,44 +86,38 @@ export default {
         return [];
       }
 
-      if (folder.folders && folder.folders.length > 0) {
-        for (const subFolder of folder.folders) {
-          let parsedSubFolder = {};
-          if (isLastLevel) {
-            parsedSubFolder = {
-              name: subFolder.name,
-              children: [],
-              unchecked: true,
-              url: subFolder.url,
-            };
-          } else {
-            let subFolderChildren = await this.parseFileTree(
-              subFolder.url,
-              level,
-              maxLevels
-            );
-            subFolderChildren =
-              subFolderChildren.length > 0
-                ? { children: subFolderChildren }
-                : {};
-            parsedSubFolder = {
-              name: subFolder.name,
-              url: subFolder.url,
-              ...subFolderChildren,
-            };
-          }
-          subFolders.push(parsedSubFolder);
-        }
-      }
-
       if (folder.files && folder.files.length > 0) {
         for (const file of folder.files) {
-          files.push({
-            name: file.name,
-            type: file.type,
-            file: "md",
-            url: file.url,
-          });
+          if (file.type === rdf.Bag) {
+            let parsedSubFolder = {};
+
+            if (isLastLevel) {
+              parsedSubFolder = {
+                name: file.name,
+                children: [],
+                unchecked: true,
+                url: file.url,
+              };
+            } else {
+              let subFolderChildren = await this.parseFileTree(
+                file.url,
+                level,
+                maxLevels
+              );
+              subFolderChildren =
+                subFolderChildren.length > 0
+                  ? { children: subFolderChildren }
+                  : {};
+              parsedSubFolder = {
+                name: file.name,
+                url: file.url,
+                ...subFolderChildren,
+              };
+            }
+            files.push(parsedSubFolder);
+          } else {
+            files.push(parseFolderItemType(file));
+          }
         }
       }
       return [...subFolders, ...files];
@@ -127,12 +127,10 @@ export default {
         // const folder = await fc.readFolder(url);
 
         const folder = await HiperFolder.find(url);
-        let children = folder.items.map((hiperItem) => ({
-          name: hiperItem.name,
-          url: hiperItem.url,
-          file: "md",
-        }));
-        console.log("folder", children, folder);
+        let children = folder.items.map((hiperItem) =>
+          parseFolderItemType(hiperItem)
+        );
+        console.log("folderURL: ", folder, children, url);
         return { name: folder.name, files: children };
       } catch (e) {
         // console.warn(e);
@@ -144,6 +142,7 @@ export default {
     async fetchInitial() {
       this.items = await this.parseFileTree(this.indexUrl, 0, 1);
     },
+
     async load(event) {
       var children = await this.parseFileTree(event.url, 0, 1);
 
@@ -166,6 +165,17 @@ export default {
       };
       this.items = modifyTreeNodeByUrl(event.url, this.items, { children });
       console.log("this.items", this.items);
+    },
+
+    async createFolder() {
+      // create new subfolder in desired location
+      this.$store.dispatch("hiperfolder/createFolder", {
+        folderName: this.folderNameInput,
+        parentUrl: this.indexUrl,
+      });
+      console.log("create folder: ", this.folderNameInput, this.indexUrl);
+      // cleans text field
+      this.folderNameInput = "";
     },
   },
 };

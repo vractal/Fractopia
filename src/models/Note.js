@@ -15,6 +15,9 @@ import {
   getStringWithLocaleAll,
   saveSolidDatasetInContainer,
   getStringNoLocaleAll,
+  getUrlAll,
+  addLiteral,
+  setStringNoLocale,
   // addStringNoLocale,
   // addDatetime,
   // addUrl
@@ -118,6 +121,8 @@ export default class Note {
       note.fieldsSchema.content.rdfType
     );
     note.title = getStringNoLocale(noteThing, note.fieldsSchema.title.rdfType);
+    note.hiperFolders = getUrlAll(noteThing, schema.isRelatedTo);
+    console.log('notefromting', note)
     note.url = noteThing.url.replace("#note", ""); // not reliable
     note.collection = this.defaultCollection;
     note.new = false;
@@ -127,17 +132,19 @@ export default class Note {
   addWithCorrectType(thing, field, value) {
     switch (this.fieldsSchema[field].rdfType) {
       case schema.text:
-        return addStringNoLocale(
+        return setStringNoLocale(
           thing,
           this.fieldsSchema[field].rdfType,
           value
         );
       case schema.headline:
-        return addStringNoLocale(
+        return setStringNoLocale(
           thing,
           this.fieldsSchema[field].rdfType,
           value
         );
+      default:
+        return thing
     }
   }
   async save() {
@@ -156,28 +163,33 @@ export default class Note {
           noteThing = this.addWithCorrectType(noteThing, field, this[field]);
         }
       }
-      noteDataset = setThing(noteDataset, noteThing);
     } else {
       // Update
       noteDataset = await getSolidDataset(this.fullDatasetPath);
       noteThing = getThing(noteDataset, this.fullDatasetPath + "#note");
-      for (let field in noteData) {
-        if (field === null) {
-          // nada?
-        } else if (this.fieldsSchema.contains(field)) {
-          noteThing = this.addWithCorrectType(noteThing, field);
+      for (let field in this.fieldsSchema) {
+        if (this[field]) {
+          noteThing = this.addWithCorrectType(noteThing, field, this[field]);
         } else {
           console.warn("Unknown parameter for Note Class", field);
         }
       }
     }
 
-    let allFolderUrls = getStringNoLocaleAll(
+    let allFolderUrls = getUrlAll(
       noteThing,
       this.fieldsSchema["isContainedBy"].rdfType
     );
 
-    allFolderUrls = [...allFolderUrls, ...this.hiperFolders];
+    for (let url of this.hiperFolders) {
+      if (!allFolderUrls.includes(url)) {
+        noteThing = addUrl(noteThing, this.fieldsSchema["isContainedBy"].rdfType, url)
+        allFolderUrls.push(url)
+      }
+    }
+    // add note to dataset
+    noteDataset = setThing(noteDataset, noteThing);
+
 
     // maybe this should be in another action for performance
     // also should be append
@@ -205,7 +217,7 @@ export default class Note {
       );
       this.new = false;
 
-      return true;
+      return this;
     } catch (e) {
       console.log(
         "Error saving solidDataset at",

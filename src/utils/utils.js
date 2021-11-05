@@ -1,4 +1,6 @@
 import store from "@/store";
+import { rdf } from "rdf-namespaces";
+
 import { includes } from "lodash";
 const parseFractopiaUrl = (url = "", dataNamespace = "") => {
   //   const userPodUrl = getPodUrlFromWebId(store.state.auth.webId);
@@ -29,4 +31,25 @@ const getPodUrlFromWebId = (webId) => {
   return webId?.replace("profile/card#me", "");
 };
 
-export { parseFractopiaUrl, getPodUrlFromWebId };
+const parseFolderItemType = (file) => {
+  console.log("parseFolderItemType: ", file)
+  switch (file.type) {
+    case rdf.Bag:
+      return {
+        name: file.name,
+        type: file.type,
+        url: file.url,
+        children: []
+      };
+
+    default:
+      return {
+        name: file.name,
+        type: file.type,
+        url: file.url,
+        file: "md"
+      };
+  }
+}
+
+export { parseFractopiaUrl, getPodUrlFromWebId, parseFolderItemType };

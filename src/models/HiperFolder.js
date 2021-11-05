@@ -40,7 +40,8 @@ export default class HiperFolder {
   type = null;
   dataset = null;
   items = [];
-  defaultPath = "hiperfolders/";
+  hiperFolder = []
+  defaultPrefix = "hiperfolders/";
   fieldsSchema = {
     name: {
       type: "string",
@@ -64,9 +65,10 @@ export default class HiperFolder {
   constructor({ name, id, url }) {
     // if id, save to default space storage
     // if url, save to url and set id
-    this.id = id;
+    this.id = id || uuidv4();
     this.name = name;
-    this.url = url;
+    this.url = url ||
+      store.getters["auth/fullSpaceUrl"] + this.defaultPrefix + this.id;
     this.new = true;
   }
 
@@ -94,15 +96,17 @@ export default class HiperFolder {
   static async addReferenceToUrl(reference, url) {
     return this.prototype.addReference(reference, url);
   }
+
   // reference is HiperFolderItem data
-  async addReference({ name, url: referenceUrl, type }, url) {
+  async addReference({ name, url: referenceUrl, type }, url = this.url) {
     let folderDataset = await getSolidDataset(url); // full url
-    console.log("addReference", folderDataset, url);
 
     let folderItemThing = createThing({ name: referenceUrl }); // id or url?
     folderItemThing = addStringNoLocale(folderItemThing, rdfs.label, name);
     folderItemThing = addUrl(folderItemThing, rdfs.subClassOf, type);
     folderDataset = setThing(folderDataset, folderItemThing);
+    console.log("addReference", folderDataset, folderItemThing, url);
+
     return saveSolidDatasetAt(url, folderDataset, {
       fetch: fetch,
     });
@@ -150,7 +154,7 @@ export default class HiperFolder {
           );
         }
       }
-      console.log("folderThig", folderThing);
+      console.log("folderThing", folderThing);
 
       folderDataset = setThing(folderDataset, folderThing);
       try {
@@ -161,7 +165,7 @@ export default class HiperFolder {
         );
         this.new = false;
 
-        return true;
+        return this;
       } catch (e) {
         console.log("Error saving solidDataset at", this.url, e?.message);
         return false;
@@ -226,6 +230,9 @@ export default class HiperFolder {
       console.log("Thing not found", e);
       return false;
     }
+  }
+  addFolder(folderId) {
+    this.hiperFolders.push(folderId);
   }
 }
 

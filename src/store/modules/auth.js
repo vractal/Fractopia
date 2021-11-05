@@ -14,7 +14,7 @@ const state = () => ({
   processing: false,
   processingSilent: false,
   webId: null,
-  fractopiaStoragePrefix: "public/temp/fractopia/",
+  fractopiaStoragePrefix: "public/new/fractopia/",
   spaceStoragePrefix: "pessoal/",
   hiperFolderPrefix: "hiperfolders/",
   sessionId: null,
@@ -53,40 +53,61 @@ const actions = {
   },
   async initialSetup(context) {
     // console.log('existentNote')
-
+    // search for index note
     var existentNote = await Note.find(
       context.getters.fullSpaceUrl + "notes/" + "index"
     );
     // console.log()
     // var existent = await HiperFolder.find(context.getters.fullSpaceUrl + );
 
-    // verifica se existe pasta com lista
-    // se não tiver, cria
-
-    var hiperFolder = await HiperFolder.find(
+    // verifies if index hiperfolder already exists
+    // otherwise, creates one
+    var indexFolder = await HiperFolder.find(
       context.getters.fullSpaceUrl + "hiperfolders/" + "index"
     )
 
-    if (!hiperFolder) {
+    if (!indexFolder) {
 
-      hiperFolder = new HiperFolder({
+      indexFolder = new HiperFolder({
         id: "index",
         url: context.getters.fullSpaceUrl + "hiperfolders/index",
         name: "Index",
         itemTypes: [HiperFolder],
       });
 
-      await hiperFolder.save();
+      await indexFolder.save();
     }
+    console.log("indexFolder: ", indexFolder)
 
+    // verifies if there is any object of type container inside indexFolder
+    let targetFolder = null
+    for (let item of indexFolder.items) {
+      if (item.type === indexFolder.rdfsClasses[0]) {
+        targetFolder = new HiperFolder({ url: item.url })
+      }
+    }
+    if (!targetFolder) {
+      targetFolder = new HiperFolder({
+        name: "Notas",
+        itemTypes: [HiperFolder],
+      });
+      targetFolder = await targetFolder.save();
+    }
+    await indexFolder.addReference({
+      name: targetFolder.name,
+      url: targetFolder.url,
+      type: targetFolder.rdfsClasses[0]
+    });
 
+    // creates index note if there is none
     if (!existentNote) {
       var welcomeNote = new Note({
         content: "# Benvindes a Fractopia",
         title: "Bemvindes",
         id: "index",
       });
-      welcomeNote.addFolder(hiperFolder.url);
+      // add note backlink to hiperfolder list
+      welcomeNote.addFolder(targetFolder.url);
 
       await welcomeNote.save();
     }

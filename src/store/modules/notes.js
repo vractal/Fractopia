@@ -7,6 +7,7 @@ import Note from "@/models/Note";
 const state = () => ({
   processing: false,
   activeNote: null,
+
 });
 
 // getters
@@ -20,24 +21,34 @@ const actions = {
     context.commit("setNote", note);
   },
   createNote(context) {
-    console.log("createnote");
     context.commit("setNote", { content: "", title: "" });
   },
 
-  async saveNote(context, noteData) {
-    console.log("save", noteData);
-    let newNote = new Note({
-      content: noteData.content,
-      title: noteData.title,
-      url: noteData.noteUrl,
-    });
-    newNote.addFolder(
-      context.getters["auth/fullSpaceUrl"] + "hiperfolders/" + "index"
-    );
-    console.log("url", newNote);
-    await newNote.save();
-    console.log("Create", noteData, newNote);
-    context.commit("setNote", newNote);
+  async saveNote(context, { noteUrl, ...noteData }) {
+    let note;
+    // if (noteUrl) {
+    note = await Note.find(noteUrl)
+    // }
+
+    console.log('notesaveantes', note)
+    if (!note) {
+      note = new Note({
+        content: noteData.content,
+        title: noteData.title,
+      });
+    }
+
+    note.content = noteData.content
+    note.title = noteData.title;
+    console.log('notesdepois', note)
+
+    if (note.hiperFolders.length === 0) {
+      note.addFolder(
+        context.rootGetters["auth/fullSpaceUrl"] + "hiperfolders/" + "index"
+      );
+    }
+    note = await note.save();
+    context.commit('setNote', note)
   },
 };
 
