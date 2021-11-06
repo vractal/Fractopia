@@ -18,7 +18,7 @@ import HiperList from "./HiperList.vue";
 import Note from "./Note.vue";
 export default {
   components: { Note, FileTree, HiperList },
-  data: () => ({ active: "note", showFileManager: false }),
+  data: () => ({ active: "note", showFileManager: true }),
 };
 </script>
 <style>

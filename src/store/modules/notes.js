@@ -7,8 +7,8 @@ import Note from "@/models/Note";
 const state = () => ({
   processing: false,
   activeNote: null,
-  openedNotes: [] // { title, url }
-
+  openedNotes: [], // { title, url }
+  cache: {}
 });
 
 // getters
@@ -60,6 +60,10 @@ const mutations = {
     state.activeNote = newNote;
     if (!(newNote.title === "" && newNote.title === "")) {
       state.openedNotes.push({ title: newNote.title, url: newNote.url });
+      if (newNote.url || newNote.noteUrl) {
+        let url = newNote.url || newNote.note
+        state.cache[url] = newNote;
+      }
 
     }
   },
