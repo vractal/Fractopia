@@ -4,7 +4,7 @@
       <div class="d-flex justify-center align-start">
         <HiperList />
 
-        <file-tree />
+        <file-tree v-if="showFileManager" />
 
         <note v-if="active == 'note'" />
       </div>
@@ -18,7 +18,7 @@ import HiperList from "./HiperList.vue";
 import Note from "./Note.vue";
 export default {
   components: { Note, FileTree, HiperList },
-  data: () => ({ active: "note" }),
+  data: () => ({ active: "note", showFileManager: false }),
 };
 </script>
 <style>
