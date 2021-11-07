@@ -2,29 +2,39 @@ import store from "@/store";
 import { rdf } from "rdf-namespaces";
 
 import { includes } from "lodash";
-const parseFractopiaUrl = (url = "", dataNamespace = "") => {
-  //   const userPodUrl = getPodUrlFromWebId(store.state.auth.webId);
-  const { fractopiaStoragePrefix } = store.state.auth;
-  const fullSpaceUrl = store.getters["auth/fullSpaceUrl"];
-  console.log("parseUrl", url);
-  let parsed = {};
-  if (includes(url, "http://") || includes(url, "https://")) {
-    // is this check enough?
-    parsed.fullUrl = url;
-    if (includes(url, fractopiaStoragePrefix)) parsed.isFractopiaUrl = true;
-    if (includes(url, fullSpaceUrl)) {
-      parsed.isSameSpace = true;
-      parsed.datasetId = url.replace(fullSpaceUrl);
-    }
-  } else if (!includes(url, fractopiaStoragePrefix)) {
-    // is justId
-    parsed.fullUrl = fullSpaceUrl + dataNamespace + url;
-    parsed.datasetId = url;
-    parsed.isSpaceGuessed = true;
-    console.warn("Guessing url is not recommended", parsed);
+
+// parses URLs to get datasetUrl and id of things
+// also checks if the URL is a valid one
+const parseFractopiaUrl = (url = "") => {
+  let parsed = { fullUrl: url }
+
+  if (!(includes(url, "http://") || includes(url, "https://"))) {
+    console.warn("Weird url when parsing (no schema)", url)
+    return { parsed: false }
   }
 
-  return parsed;
+  const podUrl = store.getters["auth/podUrl"];
+
+  if (includes(url, podUrl)) {
+    parsed.isFromUserPod = true
+  }
+
+  let splitByHashUrl = url.split('#')
+  parsed.datasetUrl = splitByHashUrl[0]
+
+  if (splitByHashUrl.length === 2) {
+    parsed.id = splitByHashUrl[1]
+  } else if (splitByHashUrl.length > 2) {
+    console.warn("Weird  Url when parsing ('#' > 1)", url)
+  } else {
+    console.warn("Incomplete url when parsing (no #<id>)", url)
+  }
+
+  let splitBySlashUrl = splitByHashUrl[0].split('/')
+  parsed.datasetName = splitBySlashUrl[splitBySlashUrl.length - 1]
+
+
+  return parsed
 };
 
 const getPodUrlFromWebId = (webId) => {
