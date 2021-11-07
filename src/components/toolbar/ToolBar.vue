@@ -24,17 +24,21 @@
         </div>
       </template>
       <logout-button />
-      <new-note-button />
+      <generic-button
+        @click="showFileManager"
+        label="files"
+        icon="mdi-folder"
+      />
     </v-speed-dial>
   </div>
 </template>
 
 <script>
+import GenericButton from "./GenericButton.vue";
 import LogoutButton from "./LogoutButton.vue";
-import NewNoteButton from "./NewNoteButton.vue";
 export default {
   name: "ToolBar",
-  components: { LogoutButton, NewNoteButton },
+  components: { LogoutButton, GenericButton },
   data() {
     return {
       fab: false,
@@ -51,6 +55,9 @@ export default {
   },
 
   methods: {
+    showFileManager() {
+      console.log("filemanager");
+    },
     changeContext() {
       this.$store.dispatch("auth/setSpaceStorage", this.contextInput);
     },

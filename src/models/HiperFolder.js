@@ -105,7 +105,6 @@ export default class HiperFolder {
     folderItemThing = addStringNoLocale(folderItemThing, rdfs.label, name);
     folderItemThing = addUrl(folderItemThing, rdfs.subClassOf, type);
     folderDataset = setThing(folderDataset, folderItemThing);
-    console.log("addReference", folderDataset, folderItemThing, url);
 
     return saveSolidDatasetAt(url, folderDataset, {
       fetch: fetch,

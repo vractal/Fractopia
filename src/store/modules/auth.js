@@ -14,7 +14,7 @@ const state = () => ({
   processing: false,
   processingSilent: false,
   webId: null,
-  fractopiaStoragePrefix: "public/fractopia/alfa/",
+  fractopiaStoragePrefix: "public/fractopia/v0.1/",
   spaceStoragePrefix: "pessoal/",
   hiperFolderPrefix: "hiperfolders/",
   sessionId: null,
@@ -52,12 +52,7 @@ const actions = {
     context.commit("setProcessing", false);
   },
   async initialSetup(context) {
-    // console.log('existentNote')
-    // search for index note
-    var existentNote = await Note.find(
-      context.getters.fullSpaceUrl + "notes/" + "index"
-    );
-    // console.log()
+
     // var existent = await HiperFolder.find(context.getters.fullSpaceUrl + );
 
     // verifies if index hiperfolder already exists
@@ -98,6 +93,25 @@ const actions = {
       url: targetFolder.url,
       type: targetFolder.rdfsClasses[0]
     });
+
+    // Create index portal if none
+
+    // let portal = await Portal.find(
+    //   context.getters.fullSpaceUrl + "portals/" + "index"
+
+    // )
+
+    // if (!portal){
+    //   portal = new Portal({
+    //     name: 'index', 
+    //     portals = []
+    //   })
+    // }
+
+    // search for index note
+    var existentNote = await Note.find(
+      context.getters.fullSpaceUrl + "notes/" + "index#note"
+    );
 
     // creates index note if there is none
     if (!existentNote) {

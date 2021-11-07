@@ -7,8 +7,8 @@ import Note from "@/models/Note";
 const state = () => ({
   processing: false,
   activeNote: null,
-  openedNotes: [] // { title, url }
-
+  openedNotes: [], // { title, url }
+  cache: {}
 });
 
 // getters
@@ -23,16 +23,12 @@ const actions = {
   },
   createNote(context, parentUrl) {
     context.commit("setNote", { content: "", title: "", hiperFolders: [parentUrl] });
-    // console.log('createNote', context, parentUrl, context.rootState.hiperfolder.activeFolder);
   },
 
   async saveNote(context, { noteUrl, parentUrl, ...noteData }) {
     let note;
-    // if (noteUrl) {
     note = await Note.find(noteUrl)
-    // }
 
-    console.log('notesaveantes', parentUrl)
     if (!note) {
       note = new Note({
         content: noteData.content,
@@ -42,7 +38,6 @@ const actions = {
 
     note.content = noteData.content
     note.title = noteData.title;
-    console.log('notesdepois', note)
 
     if (note.hiperFolders.length === 0) {
       let folderUrl = parentUrl ? parentUrl : context.rootGetters["auth/fullSpaceUrl"] + "hiperfolders/" + "index"
@@ -60,6 +55,10 @@ const mutations = {
     state.activeNote = newNote;
     if (!(newNote.title === "" && newNote.title === "")) {
       state.openedNotes.push({ title: newNote.title, url: newNote.url });
+      if (newNote.url || newNote.noteUrl) {
+        let url = newNote.url || newNote.note
+        state.cache[url] = newNote;
+      }
 
     }
   },

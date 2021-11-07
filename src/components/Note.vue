@@ -14,7 +14,10 @@
       class="d-flex flex-column justify-space-between"
     >
       <v-text-field :disabled="!editorToggle" v-model="title" />
+      <markduck v-if="!editorToggle" :markdown="localContent" />
+
       <v-md-editor
+        v-else
         ref="editor"
         v-model="localContent"
         :mode="mode"
@@ -52,8 +55,35 @@
   </v-sheet>
 </template>
 <script>
+// eslint-disable-file
 import { debounce, filter, map } from "lodash";
+import markduck from "markduckjs";
+// import gemojiToEmoji from "remark-gemoji-to-emoji";
+import rehypePrism from "@mapbox/rehype-prism";
+
+import "prismjs/themes/prism.css";
+import NoteLink from "@/components/NoteLink";
+import "@kangc/v-md-editor/lib/theme/style/github.css";
+// eslint-disable-next-line
+import { unified } from "unified";
+// import rehypeStringify from "rehype-stringify";
+// import rehypeRaw from "rehype-raw";
+// import remarkParse from "remark-parse";
+// import remark2rehype from "remark-rehype";
+// import rehypeAttrs from "rehype-attr";
+// eslint-disable-next-line
+import remark from "remark";
+
 export default {
+  components: {
+    markduck: markduck({
+      // remarkPlugins: [remarkParse, { linkify: false }, [remark2rehype]],
+      rehypePlugins: [rehypePrism],
+      components: {
+        a: NoteLink,
+      },
+    }),
+  },
   created() {},
   data: () => ({
     localContent: "",
@@ -130,7 +160,7 @@ export default {
     createLink() {
       this.pressed = false;
       if (this.linkInput) {
-        let text = `[${this.linkInput.text}](${this.linkInput.value})`;
+        let text = `[#${this.linkInput.text}](${this.linkInput.value})`;
         this.execInsertText(text, this.lastCursorPosition);
         this.linkInput = null;
       }
