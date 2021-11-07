@@ -34,7 +34,7 @@ export default class BaseThing {
   url = null;
   thing = null;
   hiperFolders = []
-  new = false;
+  new = true;
   // dateCreated = null;
   // lastModified = null;
 
@@ -68,7 +68,6 @@ export default class BaseThing {
   constructor({ id }) {
     this.new = true;
     this.id = id || uuidv4();
-
   }
 
   solveUrl({ url, id, datasetUrl }) {
@@ -89,9 +88,10 @@ export default class BaseThing {
     }
   }
 
-  static fromThing(thing) {
+  static fromThing(thing, dataset) {
     // let ThingClass = this
-    let thingModel = new Note({})
+    let Class = this
+    let thingModel = new Class({})
 
     thingModel.url = thing.url
     thingModel.new = false;
@@ -99,16 +99,19 @@ export default class BaseThing {
     // get field values
     for (let field in this.fieldsSchema) {
 
-      thingModel[field] = this.getWithCorrectType(thing, field)
+      thingModel[field] = thingModel.childClass.getWithCorrectType(thing, field)
     }
-    console.log('formthing', thingModel, thing)
-
+    thingModel = thingModel.afterFromThing(thing, dataset)
     return thingModel;
   }
-
+  // eslint-disable-next-line 
+  afterFromThing(thing, dataset) {
+    return this
+  }
 
   // parses types to correct solid-client function
   static getWithCorrectType(thing, field) {
+    console.log('getWith', field, thing, this.fieldsSchema[field].rdfType)
     switch (this.fieldsSchema[field]?.type) {
       case 'string':
         return getStringNoLocale(
@@ -121,6 +124,7 @@ export default class BaseThing {
           this.fieldsSchema[field].rdfType
 
         );
+
     }
   }
 
@@ -148,10 +152,10 @@ export default class BaseThing {
     // save portal information on a file in the dataset
     // create portalIndex
     // add reference to portal in portalIndex
-
     let dataset;
     let url;
     let { fullUrl, datasetUrl } = parseFractopiaUrl(this.url, this.childClass.defaultCollectionPrefix);
+    console.log('initialSetup4', this, datasetUrl, fullUrl)
 
     // check if it's a new thing
     if (this.new) {
@@ -162,10 +166,12 @@ export default class BaseThing {
       this.thing = addUrl(this.thing, rdf.type, this.rdfsClasses[0])
     } else {
       // Update
+
       dataset = await getSolidDataset(datasetUrl);
       this.thing = getThing(dataset, fullUrl);
 
     }
+    console.log('initialSetup5', this, fullUrl)
     let childClass = this.childClass
     // add field values
     for (let field in childClass.fieldsSchema) {
@@ -232,6 +238,7 @@ export default class BaseThing {
   async updateContainerReferences() {
     let label = this[this.fieldForLabel] || this.name || this.title || ""
     const ContainerClass = HiperFolder
+    console.log('UpdateReferences', this.url, this)
     for (let folderUrl of this.hiperFolders) {
       try {
         await ContainerClass.addReferenceToUrl(
@@ -262,13 +269,14 @@ export default class BaseThing {
     }
 
     try {
+      console.log('dataset', datasetUrl)
       const modelDataset = await getSolidDataset(
         datasetUrl,
         { fetch: fetch } // fetch from authenticated session
       );
       const modelThing = getThing(modelDataset, thingUrl);
 
-      let newModel = this.fromThing(modelThing);
+      let newModel = this.fromThing(modelThing, modelDataset);
       console.log('Find?', newModel)
       return newModel;
     } catch (error) {

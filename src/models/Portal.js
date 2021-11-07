@@ -1,53 +1,55 @@
-import BaseSolidModel from "./BaseSolidModel";
-import { space, rdfs } from "rdf-namespaces";
+import BaseThing from "./BaseThing";
+import { schema, rdfs } from "rdf-namespaces";
 import fractopia from "@/vocabulary/fractopia";
-export default class Context extends BaseSolidModel {
-  // rdfContexts = {
-  //   space: space,
-  // };
+export default class Portal extends BaseThing {
+
+  rdfsClasses = [fractopia.Portal];
+  static defaultCollectionPrefix = "portals/";
+  static nameForSoloThing = 'self'
 
   name;
   type;
   portals = [];
   defaultStorage = null; //  default path related to the portal. optional
   defaultIndexPath = null;
-  fieldsSchema = {
+  childClass = Portal
+  static fieldsSchema = {
+    ...BaseThing.baseFieldsSchema,
     name: {
-      type: String,
+      type: 'string',
       rdfType: rdfs.label,
     },
-    tools: {
-      type: "relation",
-      rdfType: fractopia.relations.subPortal,
-      target: fractopia.Portal,
+    description: {
+      type: 'string',
+      rdfType: schema.text
     },
-    targetStorage: {
-      type: "relation",
-      rdfType: space.storage,
-      // ou workspace ou pathurl simples
-    },
+    // portals: {
+    //   type: "relation",
+    //   rdfType: fractopia.relations.subPortal,
+    //   target: fractopia.Portal,
+    // },
+    // targetGraph: {
+    //   type: "relation",
+    //   rdfType: space.storage,
+    //   // ou workspace ou pathurl simples
+    // },
     // filters (datatypes, shapes, etc) nas listas e galerias e grafos
     // hiperpastas
     // modulos de vizualizacao e interacao (de um ou de varios)
     // descricao da tela (como e onde as coisas tao)
     // outras preferencias que podem ser especificas de aplicacoes
   };
-  rdfsClasses = [fractopia.Portal];
 
-  defaultNamespace = "";
-  referenceSpace = "";
+
   // tem que indexar contextos em algum lugar
 
   // tools - formas de vizualizacao/interacao ferramentas da lateral
   //
-  constructor({ name, targetSpace, tools, url }) {
-    super();
+  constructor({ id, url, datasetUrl, name, description, ...other }) {
+    super(other);
     this.name = name;
-    this.tools = tools || [];
-    this.targetSpace = targetSpace;
-    this.url = url;
+    this.description = description || [];
+    super.solveUrl({ id, url, datasetUrl })
   }
 
-  //
 }
-this;

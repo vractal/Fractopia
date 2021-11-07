@@ -8,13 +8,14 @@ import {
 import Note from "../../models/Note";
 import HiperFolder from "../../models/HiperFolder";
 import { getPodUrlFromWebId } from "@/utils/utils";
+import Portal from "../../models/Portal";
 
 // initial state
 const state = () => ({
   processing: false,
   processingSilent: false,
   webId: null,
-  fractopiaStoragePrefix: "public/fractopia/v0.1/",
+  fractopiaStoragePrefix: "public/fractopia/v0.3/",
   spaceStoragePrefix: "pessoal/",
   hiperFolderPrefix: "hiperfolders/",
   sessionId: null,
@@ -57,22 +58,24 @@ const actions = {
 
     // verifies if index hiperfolder already exists
     // otherwise, creates one
+    console.log('initialsetup')
     var indexFolder = await HiperFolder.find(
-      context.getters.fullSpaceUrl + "hiperfolders/" + "index"
+      HiperFolder.defaultCollectionUrl + "index#self"
     )
+    console.log('initialsetup1', indexFolder, HiperFolder.defaultCollectionUrl)
 
     if (!indexFolder) {
 
       indexFolder = new HiperFolder({
         id: "index",
-        url: context.getters.fullSpaceUrl + "hiperfolders/index",
         name: "Index",
         itemTypes: [HiperFolder],
       });
+      console.log('initialsetup2', indexFolder)
 
       await indexFolder.save();
     }
-    console.log("indexFolder: ", indexFolder)
+    console.log('initialsetup3', indexFolder)
 
     // verifies if there is any object of type container inside indexFolder
     let targetFolder = null
@@ -83,7 +86,7 @@ const actions = {
     }
     if (!targetFolder) {
       targetFolder = new HiperFolder({
-        name: "Notas",
+        name: "Notes",
         itemTypes: [HiperFolder],
       });
       targetFolder = await targetFolder.save();
@@ -96,21 +99,23 @@ const actions = {
 
     // Create index portal if none
 
-    // let portal = await Portal.find(
-    //   context.getters.fullSpaceUrl + "portals/" + "index"
+    let portal = await Portal.find(
+      Portal.defaultCollectionUrl + "index" + Portal.nameForSoloThing
 
-    // )
-
-    // if (!portal){
-    //   portal = new Portal({
-    //     name: 'index', 
-    //     portals = []
-    //   })
-    // }
+    )
+    if (!portal) {
+      portal = new Portal({
+        name: 'Pessoal',
+        description: 'Teste',
+        id: 'index'
+      })
+      await portal.save()
+    }
+    console.log('portal', portal)
 
     // search for index note
     var existentNote = await Note.find(
-      context.getters.fullSpaceUrl + "notes/" + "index#note"
+      Note.defaultCollectionUrl + "index#" + Note.nameForSoloThing
     );
 
     // creates index note if there is none
