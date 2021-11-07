@@ -39,17 +39,17 @@ export default class BaseThing {
   // lastModified = null;
 
   //  Probably you will want to change that in subclasses
-  static defaultCollectionPrefix = 'notes/'
+  static defaultCollectionPrefix = 'things/'
   static oneThingPerDataset = true;
-  static nameForSoloThing = 'note'
+  static nameForSoloThing = 'self'
 
   childClass = BaseThing
   get thingName() {
     return this.childClass.oneThingPerDataset ? this.childClass.nameForSoloThing : this.id
   }
 
-  get defaultCollectionUrl() {
-    return store.getters["auth/fullSpaceUrl"] + this.childClass.defaultCollectionPrefix
+  static get defaultCollectionUrl() {
+    return store.getters["auth/fullSpaceUrl"] + this.defaultCollectionPrefix
   }
 
   static baseFieldsSchema = {
@@ -65,21 +65,24 @@ export default class BaseThing {
 
   };
 
-  constructor({ id, datasetUrl, url }) {
-
+  constructor({ id }) {
     this.new = true;
+    this.id = id || uuidv4();
 
+  }
+
+  solveUrl({ url, id, datasetUrl }) {
+    let normalizedId = id || this.id || uuidv4()
     if (url === undefined || url === null) {
-      this.id = id || uuidv4();
 
       if (this.childClass.oneThingPerDataset) {
         if (datasetUrl) {
-          this.url = datasetUrl + this.id
+          this.url = datasetUrl + normalizedId
         } else {
-          this.url = `${this.defaultCollectionUrl}${this.id}#${this.childClass.nameForSoloThing}`
+          this.url = `${this.childClass.defaultCollectionUrl}${normalizedId}#${this.childClass.nameForSoloThing}`
         }
       } else {
-        this.url = `${this.defaultCollectionUrl}${uuidv4()}#${this.id}`
+        this.url = `${this.childClass.defaultCollectionUrl}${uuidv4()}#${normalizedId}`
       }
     } else {
       this.url = url;
@@ -163,19 +166,16 @@ export default class BaseThing {
       this.thing = getThing(dataset, fullUrl);
 
     }
-    let thing = this.thing
     let childClass = this.childClass
     // add field values
     for (let field in childClass.fieldsSchema) {
       if (this.hasOwnProperty(field) && this[field] !== null) {
 
-        thing = childClass.addWithCorrectType(thing, field, this[field])
+        this.thing = childClass.addWithCorrectType(this.thing, field, this[field])
       } else {
         console.warn("Unknown parameter for thing Class", field);
       }
     }
-    this.thing = thing
-    console.log('SaveUp', childClass.fieldsSchema, thing)
     this.updateContainerBackReferences()
     dataset = setThing(dataset, this.thing);
 

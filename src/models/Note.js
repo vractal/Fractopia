@@ -15,7 +15,7 @@ export default class Note extends BaseThing {
     id = null; // Dataset name (filename inside container)
 
     static defaultCollectionPrefix = "notes/";
-    static nameForSoloThing = 'note'
+    static nameForSoloThing = 'self'
 
     static fieldsSchema = {
         ...BaseThing.baseFieldsSchema,
@@ -38,10 +38,11 @@ export default class Note extends BaseThing {
     };
     childClass = Note
 
-    constructor({ id, title, content, url }) {
-        super({ id, url });
+    constructor({ id, title, content, url, datasetUrl }) {
+        super({ id });
         this.title = title;
         this.content = content;
+        super.solveUrl({ id, url, datasetUrl })
     }
 
 
