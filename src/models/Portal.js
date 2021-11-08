@@ -1,7 +1,6 @@
 import BaseThing from "./BaseThing";
 import { schema, rdfs } from "rdf-namespaces";
 import fractopia from "@/vocabulary/fractopia";
-import HiperFolder from "./HiperFolder";
 
 export default class Portal extends BaseThing {
 
@@ -17,8 +16,7 @@ export default class Portal extends BaseThing {
   defaultIndexPath = null;
 
   childClass = Portal
-  static ContainerClass = HiperFolder
-  ContainerClass = HiperFolder
+
 
 
   static fieldsSchema = {

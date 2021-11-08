@@ -27,8 +27,6 @@
     "markduckjs": "^0.0.8",
     "rdf-namespaces": "^1.9.2",
     "solid-file-client": "^2.1.0",
-    "soukai": "^0.4.1",
-    "soukai-solid": "^0.4.2",
     "unified": "^10.1.0",
     "uuid": "^8.3.2",
     "vue": "^2.6.11",

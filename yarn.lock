@@ -1210,13 +1210,6 @@
   dependencies:
     "@types/unist" "*"
 
-"@types/http-link-header@^1.0.1":
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/@types/http-link-header/-/http-link-header-1.0.3.tgz#899adf1d8d2036074514f3dbd148fb901ceff920"
-  integrity sha512-y8HkoD/vyid+5MrJ3aas0FvU3/BVBGcyG9kgxL0Zn4JwstA8CglFPnrR0RuzOjRCXwqzL5uxWC2IO7Ub0rMU2A==
-  dependencies:
-    "@types/node" "*"
-
 "@types/http-proxy@^1.17.5":
   version "1.17.7"
   resolved "https://registry.yarnpkg.com/@types/http-proxy/-/http-proxy-1.17.7.tgz#30ea85cc2c868368352a37f0d0d3581e24834c6f"
@@ -1275,11 +1268,6 @@
   version "16.11.1"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-16.11.1.tgz#2e50a649a50fc403433a14f829eface1a3443e97"
   integrity sha512-PYGcJHL9mwl1Ek3PLiYgyEKtwTMmkMw4vbiyz/ps3pfdRYLVv+SN7qHVAImrjdAXxgluDEw6Ph4lyv+m9UpRmA==
-
-"@types/node@^13.1.0":
-  version "13.13.52"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-13.13.52.tgz#03c13be70b9031baaed79481c0c0cfb0045e53f7"
-  integrity sha512-s3nugnZumCC//n4moGGe6tkNMyYEdaDBitVjwPxXmR5lnMG5dHePinH2EdxkG3Rh1ghFHHixAG4NJhpJW1rthQ==
 
 "@types/node@^15.0.1":
   version "15.14.9"
@@ -1358,11 +1346,6 @@
     "@types/serve-static" "*"
     "@types/webpack" "^4"
     http-proxy-middleware "^1.0.0"
-
-"@types/webpack-env@^1.13.6":
-  version "1.16.3"
-  resolved "https://registry.yarnpkg.com/@types/webpack-env/-/webpack-env-1.16.3.tgz#b776327a73e561b71e7881d0cd6d34a1424db86a"
-  integrity sha512-9gtOPPkfyNoEqCQgx4qJKkuNm/x0R2hKR7fdl7zvTJyHnIisuE/LfvXOsYWL0o3qq6uiBnKZNNNzi3l0y/X+xw==
 
 "@types/webpack-sources@*":
   version "3.2.0"
@@ -5879,11 +5862,6 @@ icss-utils@^4.0.0, icss-utils@^4.1.1:
   dependencies:
     postcss "^7.0.14"
 
-idb@^5.0.2:
-  version "5.0.8"
-  resolved "https://registry.yarnpkg.com/idb/-/idb-5.0.8.tgz#5f2b72a69267960d222a5f104053625f203fdbb2"
-  integrity sha512-K9xInRkVbT3ZsYimD2KVj6B4E93IBvOjEQTryu99WuuN7G+7x3SzA79+yubbX0QRN9V64Gi+L+ulG5QYTVydOg==
-
 ieee754@^1.1.4, ieee754@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.2.1.tgz#8eb7a10a63fff25d15a57b001586d177d1b0d352"
@@ -6660,39 +6638,6 @@ jsonfile@^4.0.0:
   optionalDependencies:
     graceful-fs "^4.1.6"
 
-jsonld-context-parser@^2.0.0, jsonld-context-parser@^2.1.3:
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/jsonld-context-parser/-/jsonld-context-parser-2.1.5.tgz#07f8632ce5c29072c5f91295044ab31761e84fa9"
-  integrity sha512-rsu5hB6bADa511l0QhG4lndAqlN7PQ4wsS0UKqLWUKg1GUQqYmh2SNfbwXiRiHZRJqhvCNqv9/5tQ3zzk4hMtg==
-  dependencies:
-    "@types/http-link-header" "^1.0.1"
-    "@types/node" "^13.1.0"
-    canonicalize "^1.0.1"
-    cross-fetch "^3.0.6"
-    http-link-header "^1.0.2"
-    relative-to-absolute-iri "^1.0.5"
-
-jsonld-streaming-parser@^2.0.1:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/jsonld-streaming-parser/-/jsonld-streaming-parser-2.4.0.tgz#22ebc35c883806099db0bbfaf3259e75ba6699d2"
-  integrity sha512-bDXUcHgeoEXX3uNNO9L9zsx/HEO9X4yxHi14Xfd6yS7kuaXqcUzKB6QaeJFwEoQAJB5v4XoXU/bcOcErWaEPLg==
-  dependencies:
-    "@rdfjs/types" "*"
-    "@types/http-link-header" "^1.0.1"
-    canonicalize "^1.0.1"
-    http-link-header "^1.0.2"
-    jsonld-context-parser "^2.1.3"
-    jsonparse "^1.3.1"
-    rdf-data-factory "^1.1.0"
-
-jsonld-streaming-serializer@^1.1.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/jsonld-streaming-serializer/-/jsonld-streaming-serializer-1.3.0.tgz#e42ec6ffefc5b80cc1bd17e8eee7943242f17a4d"
-  integrity sha512-QGflpxpwmr659ExvAQ5TFAY9BmJQiL/yF/MDRrP5oVWHcBBLhbPjUqDv//y2OvJxUY3UQYMXulTwzmYb1ttv2Q==
-  dependencies:
-    "@rdfjs/types" "*"
-    jsonld-context-parser "^2.0.0"
-
 jsonld@^5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/jsonld/-/jsonld-5.2.0.tgz#d1e8af38a334cb95edf0f2ae4e2b58baf8d2b5a9"
@@ -6702,11 +6647,6 @@ jsonld@^5.2.0:
     canonicalize "^1.0.1"
     lru-cache "^6.0.0"
     rdf-canonize "^3.0.0"
-
-jsonparse@^1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/jsonparse/-/jsonparse-1.3.1.tgz#3f4dae4a91fac315f71062f8521cc239f1366280"
-  integrity sha1-P02uSpH6wxX3EGL4UhzCOfE2YoA=
 
 jsprim@^1.2.2:
   version "1.4.1"
@@ -7654,7 +7594,7 @@ mz@^2.4.0:
     object-assign "^4.0.1"
     thenify-all "^1.0.0"
 
-n3@^1.10.0, n3@^1.3.6, n3@^1.9.0:
+n3@^1.10.0, n3@^1.9.0:
   version "1.11.1"
   resolved "https://registry.yarnpkg.com/n3/-/n3-1.11.1.tgz#50015008afcb71e587ff9413f32e4a9bef09bc8b"
   integrity sha512-yeTeYoatabMs6IMv71dYSIfgf+s+4DpLrnvRv8CKGRLnAt1lfWcnb+mwP67PZKq7Wvh7MCIGXaflayPkn0WzHw==
@@ -9022,13 +8962,6 @@ rdf-canonize@^3.0.0:
   dependencies:
     setimmediate "^1.0.5"
 
-rdf-data-factory@^1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/rdf-data-factory/-/rdf-data-factory-1.1.0.tgz#d0510b9f100dd79e94f29559a12d4a5a585054d6"
-  integrity sha512-g8feOVZ/KL1OK2Pco/jDBDFh4m29QDsOOD+rWloG9qFvIzRFchGy2CviLUX491E0ByewXxMpaq/A3zsWHQA16A==
-  dependencies:
-    "@rdfjs/types" "*"
-
 rdf-js@^4.0.2:
   version "4.0.2"
   resolved "https://registry.yarnpkg.com/rdf-js/-/rdf-js-4.0.2.tgz#f01510528bbfc6e004012b71a8a533896c4c4c10"
@@ -9214,11 +9147,6 @@ relateurl@0.2.x:
   version "0.2.7"
   resolved "https://registry.yarnpkg.com/relateurl/-/relateurl-0.2.7.tgz#54dbf377e51440aca90a4cd274600d3ff2d888a9"
   integrity sha1-VNvzd+UUQKypCkzSdGANP/LYiKk=
-
-relative-to-absolute-iri@^1.0.5:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/relative-to-absolute-iri/-/relative-to-absolute-iri-1.0.6.tgz#7111dac5730587e3fbca3e0f48585fbc88c147a7"
-  integrity sha512-Xw5/Zx6iWSCMJUXwXVOjySjH8Xli4hVFL9QQFvkl1qEmFBG94J+QUI9emnoctOCD3285f1jNV+QWV9eDYwIdfQ==
 
 remark-gfm@^1.0.0:
   version "1.0.0"
@@ -9832,23 +9760,6 @@ sort-keys@^1.0.0:
   integrity sha1-RBttTTRnmPG05J6JIK37oOVD+a0=
   dependencies:
     is-plain-obj "^1.0.0"
-
-soukai-solid@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/soukai-solid/-/soukai-solid-0.4.2.tgz#87911a9a1e58a919cc812df3914dc4361887c489"
-  integrity sha512-9uGRCaACNMnjkw4YXHIS/zGemJYSAm5u2rIlFQARh/KEVjpkA+8PPpVL/3u8UJVAgBygBlTTSEqiqWksqH7u4w==
-  dependencies:
-    jsonld-streaming-parser "^2.0.1"
-    jsonld-streaming-serializer "^1.1.0"
-    n3 "^1.3.6"
-
-soukai@^0.4.1:
-  version "0.4.1"
-  resolved "https://registry.yarnpkg.com/soukai/-/soukai-0.4.1.tgz#a46e412a7e13cd916cba10e55a90335bc8831ee3"
-  integrity sha512-ofqFjAvG9VhF7NHhUVeR1+/yoB5fqXk/0yg6XMFqFyQfknOyMVshVDp1WyUAGangptg9vQPSFH5VmYhQimwEqg==
-  dependencies:
-    "@types/webpack-env" "^1.13.6"
-    idb "^5.0.2"
 
 source-list-map@^2.0.0:
   version "2.0.1"

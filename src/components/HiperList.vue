@@ -32,7 +32,6 @@
 // import { fetch } from "@inrupt/solid-client-authn-browser";
 //
 import HiperFolder from "@/models/HiperFolder";
-// import Note from "@/models/Note";
 
 import { rdf, schema } from "rdf-namespaces";
 import { parseFolderItemType } from "@/utils/utils";
@@ -57,11 +56,12 @@ export default {
     items: [],
     folderNameInput: "",
     selectedFolder: null,
+    typeFilter: schema.NoteDigitalDocument,
   }),
   watch: {
     active(newValue) {
-      if (newValue.length > 0) {
-        if (newValue[0].type == schema.NoteDigitalDocument) {
+      if (newValue.length > 0 && newValue[0].url !== this.activeFile?.url) {
+        if (!this.typeFilter || newValue[0].type == this.typeFilter) {
           this.$store.dispatch("notes/getNote", newValue[0].url);
         } else {
           if (!newValue[0]?.type) {
@@ -76,14 +76,38 @@ export default {
         this.selectedFolder = null;
       }
     },
-    openFolders(newValue) {
-      console.log("watchHiperlist", newValue, this.openFolders);
+    openFolders() {
+      // console.log("watchHiperlist", newValue, this.openFolders);
     },
     url() {
       this.fetchInitial(this.indexUrl);
     },
+    activeFileUrl(newUrl) {
+      // receives note
+      if (!this.activeFile || !this.activeFile.url) {
+        this.active = [];
+        return;
+      }
+
+      if (newUrl !== this.active[0]?.url) {
+        this.active = [
+          {
+            name: this.activeFile.name,
+            type: this.activeFile.class,
+            url: this.activeFile.url,
+            children: [],
+          },
+        ];
+      }
+    },
   },
   computed: {
+    activeFileUrl() {
+      return this.$store.state.notes.activeNote?.url;
+    },
+    activeFile() {
+      return this.$store.state.notes.activeNote;
+    },
     url() {
       return this.$store.getters["auth/fullSpaceUrl"];
     },

@@ -14,6 +14,7 @@ import {
   getUrlAll,
   getStringNoLocaleAll,
   addStringNoLocale,
+  setUrl,
   // addStringNoLocale,
   // addDatetime,
   // addUrl
@@ -53,6 +54,9 @@ export default class BaseThing {
     return store.getters["auth/fullSpaceUrl"] + this.defaultCollectionPrefix
   }
 
+  get class() {
+    return this.rdfsClasses[0]
+  }
   static baseFieldsSchema = {
     // dateCreated: {
     //   type: Date,
@@ -122,6 +126,11 @@ export default class BaseThing {
         return getUrlAll(
           thing,
           this.fieldsSchema[field].rdfType
+        );
+      case 'url':
+        return getUrl(
+          thing,
+          this.fieldsSchema[field].rdfType
 
         );
       case 'array-string':
@@ -139,6 +148,12 @@ export default class BaseThing {
     switch (this.fieldsSchema[field]?.type) {
       case 'string':
         return setStringNoLocale(
+          thing,
+          this.fieldsSchema[field].rdfType,
+          value
+        );
+      case 'url':
+        return setUrl(
           thing,
           this.fieldsSchema[field].rdfType,
           value

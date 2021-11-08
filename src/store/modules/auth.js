@@ -16,7 +16,7 @@ const state = () => ({
   processingSilent: false,
   processingStatus: null,
   webId: null,
-  fractopiaStoragePrefix: "public/fractopia/0.05v/",
+  fractopiaStoragePrefix: "public/fractopia/0.06v/",
   spaceStoragePrefix: "pessoal/",
   hiperFolderPrefix: "hiperfolders/",
   sessionId: null,
@@ -25,8 +25,11 @@ const state = () => ({
 
 // getters
 const getters = {
-  podUrl() {
+  podUrl(state) {
     return getPodUrlFromWebId(state.webId);
+  },
+  fullFractopiaStorageUrl(state) {
+    return getPodUrlFromWebId(state.webId) + state.fractopiaStoragePrefix;
   },
   fullSpaceUrl(state) {
     return (
@@ -59,6 +62,8 @@ const actions = {
       HiperFolder.defaultCollectionUrl + "index#self"
     )
     if (indexFolder) {
+      await context.dispatch('portals/getAvailablePortals', null, { root: true })
+
       context.commit('setInitializationStatus', true)
     }
     return;

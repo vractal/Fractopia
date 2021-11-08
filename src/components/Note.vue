@@ -65,14 +65,12 @@ import "prismjs/themes/prism.css";
 import NoteLink from "@/components/NoteLink";
 import "@kangc/v-md-editor/lib/theme/style/github.css";
 // eslint-disable-next-line
-import { unified } from "unified";
 // import rehypeStringify from "rehype-stringify";
 // import rehypeRaw from "rehype-raw";
 // import remarkParse from "remark-parse";
 // import remark2rehype from "remark-rehype";
 // import rehypeAttrs from "rehype-attr";
 // eslint-disable-next-line
-import remark from "remark";
 
 export default {
   components: {
@@ -85,7 +83,7 @@ export default {
     }),
   },
   created() {
-    this.localContent = this.note;
+    this.localContent = this.note || "";
     this.title = this.storeTitle || "";
   },
   data: () => ({
@@ -126,12 +124,12 @@ export default {
         this.debouncedPostNote();
         // /this.localContent;
       } else {
-        this.localContent = this.note;
+        this.localContent = this.note || "";
       }
     },
     note(newValue) {
       console.log("newValueNote", newValue);
-      this.localContent = this.note;
+      this.localContent = this.note || "";
       if (newValue === "") {
         this.editorToggle = true;
       } else {
