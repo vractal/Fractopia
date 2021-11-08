@@ -9,16 +9,18 @@ import Note from "../../models/Note";
 import HiperFolder from "../../models/HiperFolder";
 import { getPodUrlFromWebId } from "@/utils/utils";
 import Portal from "../../models/Portal";
-
+import processingStates from '@/utils/processingStates'
 // initial state
 const state = () => ({
   processing: false,
   processingSilent: false,
+  processingStatus: null,
   webId: null,
-  fractopiaStoragePrefix: "public/fractopia/v0.002/",
+  fractopiaStoragePrefix: "public/fractopia/0.05v/",
   spaceStoragePrefix: "pessoal/",
   hiperFolderPrefix: "hiperfolders/",
   sessionId: null,
+  isSpaceInitialized: false
 });
 
 // getters
@@ -49,13 +51,33 @@ const actions = {
       });
     }
     context.commit("setWebId", getDefaultSession().info.webId);
-
     context.commit("setProcessing", false);
+  },
+  async checkSpaceStatus(context) {
+
+    var indexFolder = await HiperFolder.find(
+      HiperFolder.defaultCollectionUrl + "index#self"
+    )
+    if (indexFolder) {
+      context.commit('setInitializationStatus', true)
+    }
+    return;
+  },
+  async silentLogin(context) {
+    context.commit("setProcessingSilent", true);
+    await handleIncomingRedirect({ restorePreviousSession: true });
+    context.commit("setWebId", getDefaultSession().info.webId);
+    context.dispatch("checkSpaceStatus").then(() =>
+      context.commit("setProcessingSilent", false)
+    )
+  },
+  async logout(context) {
+    await logout();
+    context.commit("setWebId", null);
   },
   async initialSetup(context) {
 
-    // var existent = await HiperFolder.find(context.getters.fullSpaceUrl + );
-
+    context.commit('setProcessingStatus', processingStates.initialSetup)
     // verifies if index hiperfolder already exists
     // otherwise, creates one
     var indexFolder = await HiperFolder.find(
@@ -143,8 +165,8 @@ const actions = {
     // creates index note if there is none
     if (!existentNote) {
       var welcomeNote = new Note({
-        content: "# Benvindes a Fractopia",
-        title: "Bemvindes",
+        content: "# This is your place",
+        title: "Welcome to Fractopia",
         id: "index",
       });
       // add note backlink to hiperfolder list
@@ -161,27 +183,15 @@ const actions = {
       root: true,
     });
 
-    // createContainer if not
-    // create default workspaces
-    // private
-    // networked
-    // set defaultcontext
+    context.commit('setProcessingStatus', null)
+    context.commit('setInitializationStatus', true)
   },
   setSpaceStorage(context, spaceStorage) {
     context.commit("setSpaceStorage", spaceStorage);
-    context.dispatch("initialSetup");
+    context.commit('setInitializationStatus', false)
+    context.dispatch("checkSpaceStatus")
   },
-  async silentLogin(context) {
-    context.commit("setProcessingSilent", true);
-    await handleIncomingRedirect({ restorePreviousSession: true });
-    context.commit("setWebId", getDefaultSession().info.webId);
-    context.dispatch("initialSetup");
-    context.commit("setProcessingSilent", false);
-  },
-  async logout(context) {
-    await logout();
-    context.commit("setWebId", null);
-  },
+
 };
 
 // mutations
@@ -191,6 +201,12 @@ const mutations = {
   },
   setProcessingSilent(state, status) {
     state.processingSilent = status;
+  },
+  setProcessingStatus(state, status) {
+    state.processingStatus = status;
+  },
+  setInitializationStatus(state, status) {
+    state.isSpaceInitialized = status;
   },
   setWebId(state, webId) {
     state.webId = webId;

@@ -1,10 +1,21 @@
 <template>
-  <div class="d-flex flex-row align-center">
+  <div class="portal-switch d-flex flex-row align-start">
+    <v-text-field
+      @blur="changeSpace"
+      v-model="spaceInput"
+      placeholder="Space/"
+      dense
+      outlined
+      single-line
+    />
     <v-select
       @change="changePortal"
       v-model="contextInput"
       :items="availablePortals"
       placeholder="@Portal"
+      dense
+      outlined
+      single-line
     />
     <v-btn @click="reloadPortals">
       <v-icon>mdi-refresh</v-icon>
@@ -39,20 +50,24 @@ export default {
     icon: String,
     label: String,
   },
+  created() {
+    this.spaceInput = this.spaceStorage;
+  },
   watch: {
     currentPortal(newValue, oldValue) {
-      console.log("current", newValue, oldValue);
       if (newValue !== oldValue) {
-        this.contextInput = newValue;
+        this.contextInput = newValue || "";
       }
     },
   },
   computed: {
+    spaceStorage() {
+      return this.$store.state.auth.spaceStoragePrefix;
+    },
     currentPortal() {
-      return this.$store.state.portals.activePortal.url || "";
+      return this.$store.state.portals.activePortal?.url || "";
     },
     availablePortals() {
-      console.log("availableP", this.$store.state.portals.availablePortals);
       return (
         this.$store.state.portals.availablePortals?.map((portal) => ({
           text: portal.name,
@@ -68,12 +83,15 @@ export default {
     changePortal() {
       this.$store.dispatch("portals/activatePortal", this.contextInput);
     },
+    changeSpace() {
+      this.$store.dispatch("auth/setSpaceStorage", this.spaceInput);
+    },
     createNew() {
       if (this.creating) {
         this.$store.dispatch("portals/createPortal", {
           name: this.createNameInput,
           subPortals: [this.createSubportalInput],
-          defaultSubPortal: [this.createSubportalInput],
+          defaultSubPortal: this.createSubportalInput,
         });
       } else {
         this.creating = true;
@@ -87,4 +105,14 @@ export default {
   },
 };
 </script>
+<style>
+.portal-switch {
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  margin-bottom: -20px;
+  max-width: 50%;
+  min-width: 300px;
+}
+</style>
 

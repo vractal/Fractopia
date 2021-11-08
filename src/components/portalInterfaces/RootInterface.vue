@@ -1,16 +1,18 @@
 <template>
   <div>
     <div>
-      <ToolBar :subPortals="subPortals" />
+      <ToolBar />
+      <portal-switch class="portal-switch" />
     </div>
     <v-container class="canvas"> <slot /> </v-container>
   </div>
 </template>
 <script>
 import ToolBar from "@/components/toolbar/ToolBar.vue";
+import PortalSwitch from "@/components/toolbar/PortalSwitch.vue";
 
 export default {
-  components: { ToolBar },
+  components: { ToolBar, PortalSwitch },
 };
 </script>
 <style>

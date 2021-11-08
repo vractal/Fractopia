@@ -42,7 +42,6 @@ const getPodUrlFromWebId = (webId) => {
 };
 
 const parseFolderItemType = (file) => {
-  console.log("parseFolderItemType: ", file)
   switch (file.type) {
     case rdf.Bag:
       return {

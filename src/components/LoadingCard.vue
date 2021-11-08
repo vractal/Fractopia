@@ -6,7 +6,7 @@
   >
     <v-sheet
       elevation="1"
-      class="pa-6 d-flex justify-center align-center flex-column"
+      class="pa-8 d-flex justify-center align-center flex-column"
     >
       <v-progress-circular color="primary" :size="70" indeterminate />
       <h2>Carregando Aplicação</h2>

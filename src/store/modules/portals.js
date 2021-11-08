@@ -8,6 +8,7 @@ import HiperFolder from "@/models/HiperFolder";
 const state = () => ({
     activePortal: null,
     availablePortals: [],
+    activeSubPortal: null
 });
 
 // getters
@@ -34,7 +35,6 @@ const actions = {
                 if (portal) portals.push(portal)
             }
         }
-        console.log('indexPortalFolder', portals)
 
         context.commit('setAvailablePortals', portals)
         return true
@@ -46,14 +46,21 @@ const actions = {
         try {
             portal = await portal.save()
             context.commit('setActivePortal', portal)
+            if (portal.defaultSubPortal) {
+                context.commit('setActiveSubPortal', portal.defaultSubPortal)
+
+            }
+
         } catch (error) {
             console.warn('Failed creating portal', error)
         }
 
     },
+    async setActiveSubportal(context, subportal) {
+        context.commit('setActiveSubPortal', subportal)
+    },
     async activatePortal(context, url) {
         let portal = await Portal.find(url)
-        console.log('activatePortal', portal)
         if (portal) {
 
             context.commit('setActivePortal', portal)
@@ -79,8 +86,11 @@ const mutations = {
     },
     setActivePortal(state, portal) {
         state.activePortal = portal
+    },
+    setActiveSubPortal(state, subPortal) {
+        state.activeSubPortal = subPortal
     }
-};
+}
 
 export default {
     namespaced: true,

@@ -67,16 +67,13 @@ export default class HiperFolder extends BaseThing {
     return this.getItemsFromDataset(thing, dataset)
   }
   getItemsFromDataset(thing, dataset) {
-    console.log('thingAfter', thing, dataset)
 
     let items = []
     let folderItemsThings = getThingAll(dataset);
-    console.log('thingAfterThing', this.url, folderItemsThings)
 
     for (let folderItem of folderItemsThings) {
 
       if (folderItem.url === thing.url) {
-        console.log('folderitem', this.url, folderItem)
 
         // this.name = getStringNoLocale(folderItem, rdfs.label);
       } else {
@@ -88,7 +85,6 @@ export default class HiperFolder extends BaseThing {
 
         items.push(newItem);
       }
-      console.log('getitems', items)
     }
 
     this.items = items

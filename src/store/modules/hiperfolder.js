@@ -3,7 +3,7 @@ import HiperFolder from "@/models/HiperFolder";
 // initial state
 const state = () => ({
     activeFolder: null, // url
-    todos: [],
+    cache: {},
     //Storage / Browser
 });
 

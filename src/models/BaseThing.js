@@ -135,7 +135,6 @@ export default class BaseThing {
 
   // parses types to correct solid-client function
   static addWithCorrectType(thing, field, value) {
-    console.log('add', thing, field, value, this.fieldsSchema[field]?.rdfType)
 
     switch (this.fieldsSchema[field]?.type) {
       case 'string':
@@ -149,15 +148,14 @@ export default class BaseThing {
         if (!Array.isArray(value)) {
           return thing
         }
-        for (let itemValue in value) {
-          newThing = addStringNoLocale(
-            thing,
-            this.fieldsSchema[field].rdfType,
-            value[itemValue].toString()
-          );
-        }
 
-        console.log('Array', value, value, newThing)
+        newThing = addStringNoLocale(
+          thing,
+          this.fieldsSchema[field].rdfType,
+          value
+        );
+
+
 
         return newThing;
       default:
@@ -175,7 +173,6 @@ export default class BaseThing {
     let dataset;
     let url;
     let { fullUrl, datasetUrl } = parseFractopiaUrl(this.url, this.childClass.defaultCollectionPrefix);
-    console.log('initialSetup4', this, datasetUrl, fullUrl)
 
     // check if it's a new thing
     if (this.new) {
@@ -191,7 +188,6 @@ export default class BaseThing {
       this.thing = getThing(dataset, fullUrl);
 
     }
-    console.log('initialSetup5', this, fullUrl)
     let childClass = this.childClass
     // add field values
     for (let field in childClass.fieldsSchema) {
@@ -257,7 +253,6 @@ export default class BaseThing {
   // Maybe should detached for performance (also append)
   async updateContainerReferences() {
     let label = this[this.fieldForLabel] || this.name || this.title || ""
-    console.log('UpdateReferences', this.url, this)
     for (let folderUrl of this.hiperFolders) {
       try {
         await addReferenceToFolderUrl(
@@ -288,7 +283,6 @@ export default class BaseThing {
     }
 
     try {
-      console.log('dataset', datasetUrl)
       const modelDataset = await getSolidDataset(
         datasetUrl,
         { fetch: fetch } // fetch from authenticated session
@@ -296,7 +290,6 @@ export default class BaseThing {
       const modelThing = getThing(modelDataset, thingUrl);
 
       let newModel = this.fromThing(modelThing, modelDataset);
-      console.log('Find?', newModel)
       return newModel;
     } catch (error) {
       console.warn("Thing not found with Url provided", this, thingUrl, error)

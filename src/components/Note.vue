@@ -84,7 +84,10 @@ export default {
       },
     }),
   },
-  created() {},
+  created() {
+    this.localContent = this.note;
+    this.title = this.storeTitle || "";
+  },
   data: () => ({
     localContent: "",
     title: "",
@@ -127,6 +130,7 @@ export default {
       }
     },
     note(newValue) {
+      console.log("newValueNote", newValue);
       this.localContent = this.note;
       if (newValue === "") {
         this.editorToggle = true;
