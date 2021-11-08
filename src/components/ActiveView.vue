@@ -1,29 +1,44 @@
 <template>
   <div>
-    <v-container class="canvas">
-      <div class="d-flex justify-center align-start">
-        <HiperList />
-
-        <file-tree v-if="showFileManager" />
-
-        <note v-if="active == 'note'" />
-      </div>
-    </v-container>
+    <root-interface>
+      <component :is="activePortalInterface" />
+    </root-interface>
   </div>
 </template>
 <script>
-import FileTree from "./FileTree.vue";
-import HiperList from "./HiperList.vue";
+import NoteInterface from "./portalInterfaces/NoteInterface.vue";
+import FileTreeInterface from "./portalInterfaces/FileTreeInterface.vue";
 
-import Note from "./Note.vue";
+import RootInterface from "./portalInterfaces/RootInterface.vue";
+
 export default {
-  components: { Note, FileTree, HiperList },
-  data: () => ({ active: "note", showFileManager: true }),
+  components: { RootInterface },
+
+  computed: {
+    activePortal() {
+      return this.$store.state.portals.activePortal || {};
+    },
+  },
+  watch: {
+    activePortal(newvalue) {
+      switch (newvalue.defaultSubPortal) {
+        case "notes":
+          this.activePortalInterface = NoteInterface;
+          break;
+        case "files":
+          this.activePortalInterface = FileTreeInterface;
+          break;
+
+        default:
+          this.activePortalInterface = null;
+          break;
+      }
+    },
+  },
+  data: () => ({
+    active: "note",
+    showFileManager: true,
+    activePortalInterface: null,
+  }),
 };
 </script>
-<style>
-.canvas {
-  padding: 3em;
-  max-width: 1200px;
-}
-</style>

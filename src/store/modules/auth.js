@@ -15,7 +15,7 @@ const state = () => ({
   processing: false,
   processingSilent: false,
   webId: null,
-  fractopiaStoragePrefix: "public/fractopia/v0.3/",
+  fractopiaStoragePrefix: "public/fractopia/v0.002/",
   spaceStoragePrefix: "pessoal/",
   hiperFolderPrefix: "hiperfolders/",
   sessionId: null,
@@ -58,11 +58,9 @@ const actions = {
 
     // verifies if index hiperfolder already exists
     // otherwise, creates one
-    console.log('initialsetup')
     var indexFolder = await HiperFolder.find(
       HiperFolder.defaultCollectionUrl + "index#self"
     )
-    console.log('initialsetup1', indexFolder, HiperFolder.defaultCollectionUrl)
 
     if (!indexFolder) {
 
@@ -71,11 +69,9 @@ const actions = {
         name: "Index",
         itemTypes: [HiperFolder],
       });
-      console.log('initialsetup2', indexFolder)
 
       await indexFolder.save();
     }
-    console.log('initialsetup3', indexFolder)
 
     // verifies if there is any object of type container inside indexFolder
     let targetFolder = null
@@ -91,27 +87,53 @@ const actions = {
       });
       targetFolder = await targetFolder.save();
     }
+
     await indexFolder.addReference({
       name: targetFolder.name,
       url: targetFolder.url,
       type: targetFolder.rdfsClasses[0]
     });
 
-    // Create index portal if none
-
-    let portal = await Portal.find(
-      Portal.defaultCollectionUrl + "index" + Portal.nameForSoloThing
-
+    var portalIndex = await HiperFolder.find(
+      context.getters.fullSpaceUrl + Portal.defaultCollectionPrefix + "index#self"
     )
+    if (!portalIndex) {
+      portalIndex = new HiperFolder({
+        name: "index",
+        url: context.getters.fullSpaceUrl + Portal.defaultCollectionPrefix + "index#self",
+        itemTypes: [Portal],
+      });
+      await portalIndex.save()
+    }
+
+    let portal;
+
+    if (portalIndex.defaultLink) {
+      portal = await Portal.find(portalIndex.defaultLink)
+    } else {
+      console.warn('Dead Default Link for portal', portalIndex.defaultLink)
+    }
+
+    if (portalIndex.items.length > 0) {
+      portal = await Portal.find(
+        portalIndex.items)
+    }
+
     if (!portal) {
       portal = new Portal({
         name: 'Pessoal',
         description: 'Teste',
-        id: 'index'
+        id: 'pessoal',
+        portalInterface: 'index',
+        subPortals: ['files', 'notes'],
+        defaultSubPortal: 'notes'
       })
+      portal.addFolder(portalIndex.url)
+
       await portal.save()
+      portalIndex.defaultLink = portal.url
+      await portalIndex.save()
     }
-    console.log('portal', portal)
 
     // search for index note
     var existentNote = await Note.find(
@@ -130,8 +152,12 @@ const actions = {
 
       await welcomeNote.save();
     }
+    context.dispatch('portals/getAvailablePortals', null, { root: true }).then(
+      context.dispatch('portals/activatePortal', null, { root: true })
 
-    context.dispatch("notes/getNote", context.getters.fullSpaceUrl + "index", {
+    )
+
+    context.dispatch("notes/getNote", Note.defaultCollectionUrl + "index", {
       root: true,
     });
 
@@ -167,8 +193,6 @@ const mutations = {
     state.processingSilent = status;
   },
   setWebId(state, webId) {
-    console.log("oi", webId);
-
     state.webId = webId;
   },
   setSpaceStorage(state, spaceStorage) {

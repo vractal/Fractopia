@@ -16,12 +16,8 @@
             <v-icon v-else> mdi-account-circle </v-icon>
           </v-btn>
           <p class="mt-2">{{ context.name }}</p>
-          <v-text-field
-            @blur="changeContext"
-            v-model="contextInput"
-            placeholder="@contexto"
-          />
         </div>
+        <portal-switch />
       </template>
       <logout-button />
       <generic-button
@@ -36,9 +32,10 @@
 <script>
 import GenericButton from "./GenericButton.vue";
 import LogoutButton from "./LogoutButton.vue";
+import PortalSwitch from "./PortalSwitch.vue";
 export default {
   name: "ToolBar",
-  components: { LogoutButton, GenericButton },
+  components: { LogoutButton, GenericButton, PortalSwitch },
   data() {
     return {
       fab: false,

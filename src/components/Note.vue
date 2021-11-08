@@ -147,12 +147,10 @@ export default {
         noteUrl: this.$store.state.notes.activeNote?.url,
         parentUrl: this.$store.state.hiperfolder.activeFolder,
       });
-      console.log("postNote: ", this.$store.state.notes.activeNote);
     },
     pressedKey(value) {
       this.pressed = true;
       this.lastCursorPosition = value.target.selectionStart;
-      console.log("press", value);
     },
     editorShortcut() {
       this.editorToggle = !this.editorToggle;
@@ -173,7 +171,6 @@ export default {
     execInsertText(insertText) {
       if (!insertText.length) return;
       // const textarea = this.$refs.editor.$refs.editorEngine;
-      console.log("this.$refs", insertText);
       this.localContent = this.localContent + insertText;
       // const sentence = this.localContent;
       // const len = sentence.length;

@@ -18,7 +18,6 @@ const actions = {
     },
     //create new subhiperfolder
     async createFolder(context, { folderName, parentUrl }) {
-        console.log("start createfolder: ", folderName, parentUrl)
         // verifies if index hiperfolder already exists
         // otherwise, creates one
         var parentFolder = await HiperFolder.find(
@@ -36,7 +35,6 @@ const actions = {
 
             await parentFolder.save();
         }
-        console.log("parentFolder: ", parentFolder)
 
         // create and save new folder
         let newFolder = new HiperFolder({
@@ -49,10 +47,6 @@ const actions = {
             url: newFolder.url,
             type: newFolder.rdfsClasses[0]
         });
-
-
-        console.log('createfolder', parentFolder, newFolder)
-
     },
 
 
@@ -72,3 +66,4 @@ export default {
     actions,
     mutations,
 };
+

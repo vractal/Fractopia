@@ -43,6 +43,7 @@ export default class HiperFolder extends BaseThing {
   static defaultCollectionPrefix = "hiperfolders/";
   static nameForSoloThing = 'self'
   childClass = HiperFolder
+  static ContainerClass = HiperFolder
 
   static fieldsSchema = {
     ...BaseThing.baseFieldsSchema,
@@ -58,7 +59,7 @@ export default class HiperFolder extends BaseThing {
     super({ id })
     this.name = name;
     this.new = true
-    super.solveUrl({ id, url })
+    this.solveUrl({ id, url })
   }
 
 

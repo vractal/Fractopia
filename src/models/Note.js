@@ -1,6 +1,7 @@
 /* eslint-disable */
 import { schema } from "rdf-namespaces";
 import BaseThing from '@/models/BaseThing';
+import HiperFolder from "./HiperFolder";
 
 export default class Note extends BaseThing {
     rdfsClasses = [schema.NoteDigitalDocument];
@@ -37,12 +38,13 @@ export default class Note extends BaseThing {
         },
     };
     childClass = Note
+    static ContainerClass = HiperFolder
 
     constructor({ id, title, content, url, datasetUrl }) {
         super({ id });
         this.title = title;
         this.content = content;
-        super.solveUrl({ id, url, datasetUrl })
+        this.solveUrl({ id, url, datasetUrl })
     }
 
 

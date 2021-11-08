@@ -11,8 +11,9 @@ import {
   getStringNoLocale,
   addUrl,
   setStringNoLocale,
-  getUrlAll
-  // addStringNoLocale,
+  getUrlAll,
+  getStringNoLocaleAll,
+  addStringNoLocale,
   // addStringNoLocale,
   // addDatetime,
   // addUrl
@@ -20,8 +21,7 @@ import {
 import { fetch } from "@inrupt/solid-client-authn-browser";
 import store from "@/store";
 import { parseFractopiaUrl } from '@/utils/utils'
-import Note from './Note'
-import HiperFolder from './HiperFolder'
+import { addReferenceToFolderUrl } from "@/utils/solid";
 
 
 export default class BaseThing {
@@ -44,6 +44,7 @@ export default class BaseThing {
   static nameForSoloThing = 'self'
 
   childClass = BaseThing
+
   get thingName() {
     return this.childClass.oneThingPerDataset ? this.childClass.nameForSoloThing : this.id
   }
@@ -111,7 +112,6 @@ export default class BaseThing {
 
   // parses types to correct solid-client function
   static getWithCorrectType(thing, field) {
-    console.log('getWith', field, thing, this.fieldsSchema[field].rdfType)
     switch (this.fieldsSchema[field]?.type) {
       case 'string':
         return getStringNoLocale(
@@ -124,7 +124,11 @@ export default class BaseThing {
           this.fieldsSchema[field].rdfType
 
         );
-
+      case 'array-string':
+        return getStringNoLocaleAll(
+          thing,
+          this.fieldsSchema[field].rdfType,
+        )
     }
   }
 
@@ -140,6 +144,22 @@ export default class BaseThing {
           this.fieldsSchema[field].rdfType,
           value
         );
+      case 'array-string':
+        var newThing = thing
+        if (!Array.isArray(value)) {
+          return thing
+        }
+        for (let itemValue in value) {
+          newThing = addStringNoLocale(
+            thing,
+            this.fieldsSchema[field].rdfType,
+            value[itemValue].toString()
+          );
+        }
+
+        console.log('Array', value, value, newThing)
+
+        return newThing;
       default:
         return thing
     }
@@ -237,11 +257,10 @@ export default class BaseThing {
   // Maybe should detached for performance (also append)
   async updateContainerReferences() {
     let label = this[this.fieldForLabel] || this.name || this.title || ""
-    const ContainerClass = HiperFolder
     console.log('UpdateReferences', this.url, this)
     for (let folderUrl of this.hiperFolders) {
       try {
-        await ContainerClass.addReferenceToUrl(
+        await addReferenceToFolderUrl(
           {
             name: label,
             url: this.url,

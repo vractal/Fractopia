@@ -1,10 +1,10 @@
 <i18n src="@/common/locales.json"></i18n>
 <template>
-  <div class="d-flex align-center">
+  <div class="d-flex align-center justify-center">
     <v-sheet
       elevation="1"
       width="700"
-      class="d-flex text-center solid-login"
+      class="pa-8 d-flex flex-column text-center solid-login"
       padding="1"
     >
       <h1>Fractopia</h1>
@@ -15,9 +15,7 @@
           placeholder="Ex: https://exemplo.fractopia.org"
           v-model="userUrl"
         />
-        <v-btn color="primary" @click="login" :loading="loading">
-          Login
-        </v-btn>
+        <v-btn color="primary" @click="login" :loading="loading"> Login </v-btn>
       </v-form>
     </v-sheet>
   </div>

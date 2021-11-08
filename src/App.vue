@@ -2,23 +2,9 @@
   <div id="app">
     <v-app>
       <v-main>
-        <v-sheet
-          elevation="0"
-          v-if="returningFromAuth && loadingSilent"
-          class="d-flex justify-center align-center "
-          height="100%"
-        >
-          <v-sheet
-            elevation="1"
-            class="pa-6 d-flex justify-center align-center flex-column"
-          >
-            <v-progress-circular color="primary" :size="70" indeterminate />
-            <h2>Carregando Aplicação</h2>
-          </v-sheet>
-        </v-sheet>
+        <loading-card v-if="returningFromAuth && loadingSilent" />
 
         <div v-else-if="logged">
-          <tool-bar />
           <active-view />
         </div>
         <SolidLogin v-else />
@@ -29,18 +15,17 @@
 
 <script>
 import SolidLogin from "@/components/SolidLogin";
-import ToolBar from "@/components/toolbar/ToolBar.vue";
 import ActiveView from "./components/ActiveView.vue";
+import LoadingCard from "./components/LoadingCard.vue";
 
 export default {
   name: "App",
   components: {
     SolidLogin,
-    ToolBar,
     ActiveView,
+    LoadingCard,
   },
   created() {
-    console.log("Created", this.$route);
     if (this.returningFromAuth) {
       this.$store.dispatch("auth/silentLogin");
     }
@@ -57,14 +42,6 @@ export default {
     },
     loading() {
       return this.$store.state.auth.processing;
-    },
-  },
-  watch: {
-    returningFromAuth(newValue, oldValue) {
-      console.log("Return", newValue, oldValue);
-    },
-    logged(newValue, oldValue) {
-      console.log("Return", newValue, oldValue);
     },
   },
 };

@@ -62,4 +62,6 @@ const parseFolderItemType = (file) => {
   }
 }
 
+
+
 export { parseFractopiaUrl, getPodUrlFromWebId, parseFolderItemType };

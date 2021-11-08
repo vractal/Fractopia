@@ -61,7 +61,6 @@ export default {
   watch: {
     active(newValue) {
       if (newValue.length > 0) {
-        console.log("value", newValue[0]);
         if (newValue[0].type == schema.NoteDigitalDocument) {
           this.$store.dispatch("notes/getNote", newValue[0].url);
         } else {
@@ -94,7 +93,6 @@ export default {
   },
   methods: {
     async parseFileTree(path, level = 0, maxLevels) {
-      console.log("treeParser", level, path);
       const isLastLevel = level === maxLevels;
       level += 1;
 
@@ -152,7 +150,6 @@ export default {
         let children = folder.items.map((hiperItem) =>
           parseFolderItemType(hiperItem)
         );
-        console.log("folderURL: ", folder, children, url);
         return { name: folder.name, files: children };
       } catch (e) {
         // console.warn(e);
@@ -171,7 +168,6 @@ export default {
       const modifyTreeNodeByUrl = (url, array, newField = {}) => {
         let newArray = [];
         for (const item of array) {
-          console.log("item", item.url, url);
           if (item.url === url) {
             newArray.push({ ...item, ...newField });
           } else if (item.children && item.children.length > 0) {
