@@ -50,11 +50,16 @@ const actions = {
         portal.addFolder(indexFolderUrl)
         try {
             portal = await portal.save()
-            context.commit('setActivePortal', portal)
-            if (portal.defaultSubPortal) {
-                context.commit('setActiveSubPortal', portal.defaultSubPortal)
+            if (portal) {
+                context.commit('setAvailablePortals', [portal, ...context.state.availablePortals])
+                context.commit('setActivePortal', portal)
+                if (portal.defaultSubPortal) {
+                    context.commit('setActiveSubPortal', portal.defaultSubPortal)
 
+                }
             }
+
+
 
         } catch (error) {
             console.warn('Failed creating portal', error)
@@ -75,10 +80,9 @@ const actions = {
             if (!context.state.activePortal) {
                 if (context.state.availablePortals.length > 0) {
                     context.commit('setActivePortal', context.state.availablePortals[0])
-                    if (portal.defaultSubPortal) {
-                        context.commit('setActiveSubPortal', context.state.availablePortals[0]?.defaultSubPortal)
+                    context.commit('setActiveSubPortal', context.state.availablePortals[0]?.defaultSubPortal)
 
-                    }
+
                 } else {
                     console.warn("No context found")
                 }

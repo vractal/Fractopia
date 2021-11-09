@@ -147,7 +147,7 @@ export default {
         content: this.localContent,
         title: this.title,
         noteUrl: this.$store.state.notes.activeNote?.url,
-        parentUrl: this.$store.state.hiperfolder.activeFolder,
+        parentUrl: this.$store.state.hiperfolder.selectedFolder,
       });
     },
     pressedKey(value) {

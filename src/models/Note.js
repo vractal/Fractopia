@@ -32,8 +32,8 @@ export default class Note extends BaseThing {
     childClass = Note
     static ContainerClass = HiperFolder
 
-    constructor({ id, title, content, url, datasetUrl }) {
-        super({ id });
+    constructor({ id, title, content, url, hiperFolders, datasetUrl }) {
+        super({ id, hiperFolders });
         this.title = title;
         this.content = content;
         this.solveUrl({ id, url, datasetUrl })

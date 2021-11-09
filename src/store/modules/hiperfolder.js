@@ -3,6 +3,7 @@ import HiperFolder from "@/models/HiperFolder";
 // initial state
 const state = () => ({
     activeFolder: null, // url
+    selectedFolder: null,
     cache: {},
     //Storage / Browser
 });
@@ -15,6 +16,9 @@ const actions = {
     // set active folder globally 
     changeActiveFolder(context, folderUrl) {
         context.commit('setActiveFolder', folderUrl)
+    },
+    changeSelectedFolder(context, folderUrl) {
+        context.commit('setSelectedFolder', folderUrl)
     },
     //create new subhiperfolder
     async createFolder(context, { folderName, parentUrl }) {
@@ -56,6 +60,9 @@ const actions = {
 const mutations = {
     setActiveFolder(state, folderUrl) {
         state.activeFolder = folderUrl
+    },
+    setSelectedFolder(state, folderUrl) {
+        state.selectedFolder = folderUrl
     }
 };
 

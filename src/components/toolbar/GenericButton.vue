@@ -1,6 +1,6 @@
 <template>
   <div class="d-flex flex-column align-center">
-    <v-btn color="danger" fab @click="click">
+    <v-btn small color="danger" @click="click">
       <v-icon>{{ icon }}</v-icon>
     </v-btn>
     <p>{{ label }}</p>

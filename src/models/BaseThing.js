@@ -73,9 +73,11 @@ export default class BaseThing {
 
   };
 
-  constructor({ id }) {
+  constructor({ id, hiperFolders = [] }) {
     this.new = true;
     this.id = id || uuidv4();
+    this.hiperFolders = hiperFolders;
+
   }
 
   solveUrl({ url, id, datasetUrl, datasetName }) {

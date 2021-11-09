@@ -55,7 +55,6 @@ export default {
     tree: [],
     items: [],
     folderNameInput: "",
-    selectedFolder: null,
     typeFilter: schema.NoteDigitalDocument,
   }),
   watch: {
@@ -65,22 +64,22 @@ export default {
           this.$store.dispatch("notes/getNote", newValue[0].url);
         } else {
           if (!newValue[0]?.type) {
-            this.selectedFolder = newValue[0].url;
+            let selectedFolder = newValue[0].url;
             this.$store.dispatch(
-              "hiperfolder/changeActiveFolder",
-              this.selectedFolder
+              "hiperfolder/changeSelectedFolder",
+              selectedFolder
             );
           }
         }
       } else {
-        this.selectedFolder = null;
+        // this.$store.dispatch("hiperfolder/changeSelectedFolder", null);
       }
     },
     openFolders() {
       // console.log("watchHiperlist", newValue, this.openFolders);
     },
-    url() {
-      this.fetchInitial(this.indexUrl);
+    indexUrl() {
+      this.fetchInitial();
     },
     activeFileUrl(newUrl) {
       // receives note
@@ -110,6 +109,9 @@ export default {
     },
     indexUrl() {
       return this.$store.state.hiperfolder.activeFolder;
+    },
+    selectedFolder() {
+      return this.$store.state.hiperfolder.selectedFolder;
     },
   },
   methods: {
