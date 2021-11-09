@@ -53,13 +53,13 @@ export default class HiperFolder extends BaseThing {
     },
   };
 
-  constructor({ name, id, url }) {
+  constructor({ name, id, url, datasetUrl }) {
     // if id, save to default space storage
     // if url, save to url and set id
     super({ id })
     this.name = name;
     this.new = true
-    this.solveUrl({ id, url })
+    this.solveUrl({ id, url, datasetUrl })
   }
 
 

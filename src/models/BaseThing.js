@@ -15,6 +15,9 @@ import {
   getStringNoLocaleAll,
   addStringNoLocale,
   setUrl,
+  getBoolean,
+  setBoolean,
+  getUrl
   // addStringNoLocale,
   // addDatetime,
   // addUrl
@@ -75,18 +78,19 @@ export default class BaseThing {
     this.id = id || uuidv4();
   }
 
-  solveUrl({ url, id, datasetUrl }) {
+  solveUrl({ url, id, datasetUrl, datasetName }) {
     let normalizedId = id || this.id || uuidv4()
     if (url === undefined || url === null) {
 
       if (this.childClass.oneThingPerDataset) {
         if (datasetUrl) {
-          this.url = datasetUrl + normalizedId
+          this.url = datasetUrl + "#" + this.childClass.nameForSoloThing
         } else {
           this.url = `${this.childClass.defaultCollectionUrl}${normalizedId}#${this.childClass.nameForSoloThing}`
         }
       } else {
-        this.url = `${this.childClass.defaultCollectionUrl}${uuidv4()}#${normalizedId}`
+        let fileName = datasetName || this.childClass.datasetName || uuidv4()
+        this.url = `${this.childClass.defaultCollectionUrl}${fileName}#${normalizedId}`
       }
     } else {
       this.url = url;
@@ -133,6 +137,12 @@ export default class BaseThing {
           this.fieldsSchema[field].rdfType
 
         );
+      case 'boolean':
+        return getBoolean(
+          thing,
+          this.fieldsSchema[field].rdfType
+
+        );
       case 'array-string':
         return getStringNoLocaleAll(
           thing,
@@ -159,20 +169,20 @@ export default class BaseThing {
           value
         );
       case 'array-string':
-        var newThing = thing
         if (!Array.isArray(value)) {
           return thing
         }
-
-        newThing = addStringNoLocale(
+        return addStringNoLocale(
+          thing,
+          this.fieldsSchema[field].rdfType,
+          value
+        );;
+      case 'boolean':
+        return setBoolean(
           thing,
           this.fieldsSchema[field].rdfType,
           value
         );
-
-
-
-        return newThing;
       default:
         return thing
     }
@@ -206,8 +216,7 @@ export default class BaseThing {
     let childClass = this.childClass
     // add field values
     for (let field in childClass.fieldsSchema) {
-      if (this.hasOwnProperty(field) && this[field] !== null) {
-
+      if (this.hasOwnProperty(field) && this[field] !== (null || undefined)) {
         this.thing = childClass.addWithCorrectType(this.thing, field, this[field])
       } else {
         console.warn("Unknown parameter for thing Class", field);
@@ -288,7 +297,6 @@ export default class BaseThing {
   static async find(url) {
     let thingUrl;
     let { fullUrl, datasetUrl, datasetName, id: urlId } = parseFractopiaUrl(url, this.defaultCollectionPrefix);
-
     if (!urlId) {
       if (this.oneThingPerDataset) {
         thingUrl = datasetUrl + '#' + this.nameForSoloThing;

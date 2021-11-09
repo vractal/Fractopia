@@ -1,3 +1,4 @@
+// eslint-disable-file
 import {
   handleIncomingRedirect,
   login,
@@ -5,22 +6,16 @@ import {
   // fetch,
   getDefaultSession,
 } from "@inrupt/solid-client-authn-browser";
-import Note from "../../models/Note";
-import HiperFolder from "../../models/HiperFolder";
 import { getPodUrlFromWebId } from "@/utils/utils";
-import Portal from "../../models/Portal";
-import processingStates from '@/utils/processingStates'
 // initial state
 const state = () => ({
+  webId: null,
+  sessionId: null,
   processing: false,
   processingSilent: false,
   processingStatus: null,
-  webId: null,
-  fractopiaStoragePrefix: "public/fractopia/0.06v/",
+  fractopiaStoragePrefix: "public/fractopia/v1/",
   spaceStoragePrefix: "pessoal/",
-  hiperFolderPrefix: "hiperfolders/",
-  sessionId: null,
-  isSpaceInitialized: false
 });
 
 // getters
@@ -31,12 +26,10 @@ const getters = {
   fullFractopiaStorageUrl(state) {
     return getPodUrlFromWebId(state.webId) + state.fractopiaStoragePrefix;
   },
-  fullSpaceUrl(state) {
-    return (
-      getPodUrlFromWebId(state.webId) +
-      state.fractopiaStoragePrefix +
-      state.spaceStoragePrefix
-    );
+  //eslint-disable-next-line
+  fullSpaceUrl(state, getters, rootState, rootGetters) {
+    return rootGetters['spaces/fullSpaceUrl']
+
     // check if url is from current space
   },
 };
@@ -56,140 +49,54 @@ const actions = {
     context.commit("setWebId", getDefaultSession().info.webId);
     context.commit("setProcessing", false);
   },
-  async checkSpaceStatus(context) {
 
-    var indexFolder = await HiperFolder.find(
-      HiperFolder.defaultCollectionUrl + "index#self"
-    )
-    if (indexFolder) {
-      await context.dispatch('portals/getAvailablePortals', null, { root: true })
-
-      context.commit('setInitializationStatus', true)
-    }
-    return;
-  },
   async silentLogin(context) {
     context.commit("setProcessingSilent", true);
     await handleIncomingRedirect({ restorePreviousSession: true });
     context.commit("setWebId", getDefaultSession().info.webId);
-    context.dispatch("checkSpaceStatus").then(() =>
-      context.commit("setProcessingSilent", false)
-    )
+    await context.dispatch("spaces/loadSpaces", null, { root: true })
+    context.commit("setProcessingSilent", false)
   },
   async logout(context) {
     await logout();
     context.commit("setWebId", null);
   },
-  async initialSetup(context) {
+  async initialSetup() {
 
-    context.commit('setProcessingStatus', processingStates.initialSetup)
+    // context.commit('setProcessingStatus', processingStates.initialSetup)
     // verifies if index hiperfolder already exists
     // otherwise, creates one
-    var indexFolder = await HiperFolder.find(
-      HiperFolder.defaultCollectionUrl + "index#self"
-    )
 
-    if (!indexFolder) {
 
-      indexFolder = new HiperFolder({
-        id: "index",
-        name: "Index",
-        itemTypes: [HiperFolder],
-      });
 
-      await indexFolder.save();
-    }
+    // // search for index note
+    // var existentNote = await Note.find(
+    //   Note.defaultCollectionUrl + "index#" + Note.nameForSoloThing
+    // );
 
-    // verifies if there is any object of type container inside indexFolder
-    let targetFolder = null
-    for (let item of indexFolder.items) {
-      if (item.type === indexFolder.rdfsClasses[0]) {
-        targetFolder = new HiperFolder({ url: item.url })
-      }
-    }
-    if (!targetFolder) {
-      targetFolder = new HiperFolder({
-        name: "Notes",
-        itemTypes: [HiperFolder],
-      });
-      targetFolder = await targetFolder.save();
-    }
+    // // creates index note if there is none
+    // if (!existentNote) {
+    //   var welcomeNote = new Note({
+    //     content: "# This is your place",
+    //     title: "Welcome to Fractopia",
+    //     id: "index",
+    //   });
+    //   // add note backlink to hiperfolder list
+    //   welcomeNote.addFolder(targetFolder.url);
 
-    await indexFolder.addReference({
-      name: targetFolder.name,
-      url: targetFolder.url,
-      type: targetFolder.rdfsClasses[0]
-    });
+    //   await welcomeNote.save();
+    // }
+    // context.dispatch('portals/getAvailablePortals', null, { root: true }).then(
+    //   context.dispatch('portals/activatePortal', null, { root: true })
 
-    var portalIndex = await HiperFolder.find(
-      context.getters.fullSpaceUrl + Portal.defaultCollectionPrefix + "index#self"
-    )
-    if (!portalIndex) {
-      portalIndex = new HiperFolder({
-        name: "index",
-        url: context.getters.fullSpaceUrl + Portal.defaultCollectionPrefix + "index#self",
-        itemTypes: [Portal],
-      });
-      await portalIndex.save()
-    }
+    // )
 
-    let portal;
+    // context.dispatch("notes/getNote", Note.defaultCollectionUrl + "index", {
+    //   root: true,
+    // });
 
-    if (portalIndex.defaultLink) {
-      portal = await Portal.find(portalIndex.defaultLink)
-    } else {
-      console.warn('Dead Default Link for portal', portalIndex.defaultLink)
-    }
-
-    if (portalIndex.items.length > 0) {
-      portal = await Portal.find(
-        portalIndex.items)
-    }
-
-    if (!portal) {
-      portal = new Portal({
-        name: 'Pessoal',
-        description: 'Teste',
-        id: 'pessoal',
-        portalInterface: 'index',
-        subPortals: ['files', 'notes'],
-        defaultSubPortal: 'notes'
-      })
-      portal.addFolder(portalIndex.url)
-
-      await portal.save()
-      portalIndex.defaultLink = portal.url
-      await portalIndex.save()
-    }
-
-    // search for index note
-    var existentNote = await Note.find(
-      Note.defaultCollectionUrl + "index#" + Note.nameForSoloThing
-    );
-
-    // creates index note if there is none
-    if (!existentNote) {
-      var welcomeNote = new Note({
-        content: "# This is your place",
-        title: "Welcome to Fractopia",
-        id: "index",
-      });
-      // add note backlink to hiperfolder list
-      welcomeNote.addFolder(targetFolder.url);
-
-      await welcomeNote.save();
-    }
-    context.dispatch('portals/getAvailablePortals', null, { root: true }).then(
-      context.dispatch('portals/activatePortal', null, { root: true })
-
-    )
-
-    context.dispatch("notes/getNote", Note.defaultCollectionUrl + "index", {
-      root: true,
-    });
-
-    context.commit('setProcessingStatus', null)
-    context.commit('setInitializationStatus', true)
+    // context.commit('setProcessingStatus', null)
+    // context.commit('setInitializationStatus', true)
   },
   setSpaceStorage(context, spaceStorage) {
     context.commit("setSpaceStorage", spaceStorage);
@@ -209,9 +116,6 @@ const mutations = {
   },
   setProcessingStatus(state, status) {
     state.processingStatus = status;
-  },
-  setInitializationStatus(state, status) {
-    state.isSpaceInitialized = status;
   },
   setWebId(state, webId) {
     state.webId = webId;

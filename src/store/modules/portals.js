@@ -20,15 +20,20 @@ const actions = {
     init() {
 
     },
-    async getAvailablePortals(context) {
+    async getAvailablePortals(context, receivedPortalIndex) {
+        let dummyPortal = new Portal({})
         let portals = []
-        let portalIndexUrl = context.rootGetters['auth/fullSpaceUrl'] + Portal.defaultCollectionPrefix + 'index#self'
-        let indexPortalFolder = await HiperFolder.find(portalIndexUrl)
-        if (!indexPortalFolder) {
+        let portalIndex = receivedPortalIndex
+
+        if (!portalIndex) {
+            let portalIndexUrl = context.rootGetters['spaces/activeSpace']?.portalIndex
+            portalIndex = await HiperFolder.find(portalIndexUrl)
+        }
+        if (!portalIndex) {
             return;
         }
-        let dummyPortal = new Portal({})
-        for (let indexThing of indexPortalFolder.items) {
+
+        for (let indexThing of portalIndex.items) {
             if (indexThing.type === dummyPortal.rdfsClasses[0]) {
                 // let url = getUrl(indexThing, schema.relatedLink)
                 let portal = await Portal.find(indexThing.url)
@@ -64,11 +69,16 @@ const actions = {
         if (portal) {
 
             context.commit('setActivePortal', portal)
+            context.commit('setActiveSubPortal', portal.defaultSubPortal)
+
         } else {
             if (!context.state.activePortal) {
                 if (context.state.availablePortals.length > 0) {
                     context.commit('setActivePortal', context.state.availablePortals[0])
+                    if (portal.defaultSubPortal) {
+                        context.commit('setActiveSubPortal', context.state.availablePortals[0]?.defaultSubPortal)
 
+                    }
                 } else {
                     console.warn("No context found")
                 }

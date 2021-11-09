@@ -1,1 +1,1 @@
-export default { initialSetup: 'initialSetup' }
+export default { initialSetup: 'initialSetup', creatingSpace: 'creatingSpace' }

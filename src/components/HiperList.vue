@@ -108,11 +108,8 @@ export default {
     activeFile() {
       return this.$store.state.notes.activeNote;
     },
-    url() {
-      return this.$store.getters["auth/fullSpaceUrl"];
-    },
     indexUrl() {
-      return this.url + "hiperfolders/index";
+      return this.$store.state.hiperfolder.activeFolder;
     },
   },
   methods: {

@@ -9,8 +9,7 @@ export default class Note extends BaseThing {
     hiperFolders = [];
     content = null;
     title = null;
-    dateCreated = null;
-    lastModified = null;
+
 
 
     id = null; // Dataset name (filename inside container)
@@ -24,14 +23,7 @@ export default class Note extends BaseThing {
             type: 'string',
             rdfType: schema.text,
         },
-        dateCreated: {
-            type: 'date',
-            rdfType: schema.dateCreated,
-        },
-        lastModified: {
-            type: 'date',
-            rdfType: schema.dateModified,
-        },
+
         title: {
             type: 'string',
             rdfType: schema.headline,

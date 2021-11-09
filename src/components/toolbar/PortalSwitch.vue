@@ -1,13 +1,7 @@
 <template>
   <div class="portal-switch d-flex flex-row align-start">
-    <v-text-field
-      @blur="changeSpace"
-      v-model="spaceInput"
-      placeholder="Space/"
-      dense
-      outlined
-      single-line
-    />
+    <p class="pa-6 ml-16">{{ spaceName }}</p>
+
     <v-select
       @change="changePortal"
       v-model="contextInput"
@@ -29,6 +23,7 @@
       class="pa-6 d-flex flex-column justify-start"
     >
       <v-text-field placeholder="Name" v-model="createNameInput" />
+
       <v-text-field placeholder="subportal" v-model="createSubportalInput" />
       <v-btn small @click="cancel"><v-icon>mdi-close</v-icon></v-btn>
       <v-btn small @click="createNew"> <v-icon>mdi-ok</v-icon></v-btn>
@@ -51,7 +46,7 @@ export default {
     label: String,
   },
   created() {
-    this.spaceInput = this.spaceStorage;
+    this.reloadPortals();
   },
   watch: {
     currentPortal(newValue, oldValue) {
@@ -61,8 +56,8 @@ export default {
     },
   },
   computed: {
-    spaceStorage() {
-      return this.$store.state.auth.spaceStoragePrefix;
+    spaceName() {
+      return this.$store.getters["spaces/activeSpace"]?.name;
     },
     currentPortal() {
       return this.$store.state.portals.activePortal?.url || "";
@@ -83,9 +78,9 @@ export default {
     changePortal() {
       this.$store.dispatch("portals/activatePortal", this.contextInput);
     },
-    changeSpace() {
-      this.$store.dispatch("auth/setSpaceStorage", this.spaceInput);
-    },
+    // changeSpace() {
+    //   this.$store.dispatch("auth/setSpaceStorage", this.spaceInput);
+    // },
     createNew() {
       if (this.creating) {
         this.$store.dispatch("portals/createPortal", {

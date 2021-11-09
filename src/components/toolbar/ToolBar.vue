@@ -5,7 +5,6 @@
       v-model="fab"
       direction="top"
       transition="scale-transition"
-      open-on-hover
       bottom
       left
       fixed
@@ -13,8 +12,11 @@
       <template v-slot:activator>
         <div class="d-flex justify-start">
           <v-btn x-large v-model="fab" color="blue darken-2" dark fab>
-            <v-icon v-if="fab"> mdi-close </v-icon>
-            <v-icon v-else> mdi-account-circle </v-icon>
+            <!-- <v-icon v-if="fab"> mdi-set-center-right </v-icon>
+            <v-icon v-else> mdi-set-left-center </v-icon> -->
+
+            <v-icon v-if="fab"> mdi-spider-web </v-icon>
+            <v-icon v-else> mdi-atom-variant </v-icon>
           </v-btn>
         </div>
       </template>

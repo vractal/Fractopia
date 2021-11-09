@@ -20,7 +20,7 @@ export default {
       return this.$store.state.portals?.activePortal || {};
     },
     isSpaceInitialized() {
-      return this.$store.state.auth.isSpaceInitialized;
+      return this.$store.state.spaces.isInitialized;
     },
     activeSubPortal() {
       return this.$store.state.portals?.activeSubPortal;

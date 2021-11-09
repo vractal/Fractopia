@@ -37,6 +37,11 @@ const parseFractopiaUrl = (url = "") => {
   return parsed
 };
 
+const putEndSlash = (url) => {
+
+  return (url?.length > 1) && (url[url.length - 1] !== '/') ? url + '/' : url
+}
+
 const getPodUrlFromWebId = (webId) => {
   return webId?.replace("profile/card#me", "");
 };
@@ -63,4 +68,4 @@ const parseFolderItemType = (file) => {
 
 
 
-export { parseFractopiaUrl, getPodUrlFromWebId, parseFolderItemType };
+export { parseFractopiaUrl, getPodUrlFromWebId, parseFolderItemType, putEndSlash };
