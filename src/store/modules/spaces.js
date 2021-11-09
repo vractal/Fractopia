@@ -185,6 +185,7 @@ Among them, a group of permacultors, whom happily replied in joining and added h
         .then((result) => {
           context.dispatch("checkAndSetSpace", result);
           context.commit("setProcessingStatus", false);
+          context.dispatch("loadSpaces");
         })
         .catch((error) => {
           console.warn("Failed setting up space", error);
@@ -249,6 +250,7 @@ Among them, a group of permacultors, whom happily replied in joining and added h
       context.commit("setSpaceInitializedStatus", true);
 
       context.commit("setActiveSpace", space.url);
+      context.commit("setProcessingStatus", false);
     } else {
       context.commit("setSpaceInitializedStatus", false);
       context.commit("setActiveSpace", null);

@@ -1,5 +1,5 @@
 <template>
-  <v-row justify="center" v-if="isProcessing">
+  <v-row justify="center" v-if="!isProcessing">
     <v-dialog v-model="dialog" persistent max-width="600">
       <v-card class="pa-4 text-center center-text">
         <v-card-title class="text-h5">
@@ -53,8 +53,14 @@ export default {
       dialog: true,
     };
   },
+  created() {
+    setTimeout(() => {});
+  },
   methods: {
     initializeSpace() {
+      if (this.spaceNameInput === ("" || null)) {
+        return;
+      }
       this.$store.dispatch("spaces/createSpace", {
         name: this.spaceNameInput || "personal",
         isDefaultSpace: true,
@@ -66,7 +72,11 @@ export default {
       return false;
     },
     isProcessing() {
-      return !!this.$store.state.spaces.processingStatus;
+      return (
+        !!this.$store.getters["auth/processingStatus"] ||
+        this.$store.state.spaces.processingStatus ===
+          (processingStates.loadingSpaces || processingStates.settingSpace)
+      );
     },
     isProcessingInitialization() {
       return (

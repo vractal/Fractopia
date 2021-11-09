@@ -16,7 +16,7 @@
       <v-card class="mx-12" max-width="420">
         <v-card-text>
           <p class="text-h4 text--primary">Create Space</p>
-          <div class="text">Make someting special</div>
+          <div class="text">Then put stuff in it</div>
         </v-card-text>
         <v-card-actions>
           <v-btn

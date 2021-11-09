@@ -14,7 +14,7 @@ const state = () => ({
   processing: false,
   processingSilent: false,
   processingStatus: null,
-  fractopiaStoragePrefix: "public/Fractopia/v0.15/",
+  fractopiaStoragePrefix: "public/Fractopia/v0.2/",
   spaceStoragePrefix: "pessoal/",
 });
 
@@ -31,6 +31,9 @@ const getters = {
     return rootGetters["spaces/fullSpaceUrl"];
 
     // check if url is from current space
+  },
+  processingStatus(state) {
+    return state.processingStatus || state.processingSilent || state.processing;
   },
 };
 
