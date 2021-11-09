@@ -14,7 +14,7 @@ const state = () => ({
   processing: false,
   processingSilent: false,
   processingStatus: null,
-  fractopiaStoragePrefix: "public/Fractopia/v0.12/",
+  fractopiaStoragePrefix: "public/Fractopia/v0.15/",
   spaceStoragePrefix: "pessoal/",
 });
 
@@ -28,7 +28,7 @@ const getters = {
   },
   //eslint-disable-next-line
   fullSpaceUrl(state, getters, rootState, rootGetters) {
-    return rootGetters['spaces/fullSpaceUrl']
+    return rootGetters["spaces/fullSpaceUrl"];
 
     // check if url is from current space
   },
@@ -54,26 +54,21 @@ const actions = {
     context.commit("setProcessingSilent", true);
     await handleIncomingRedirect({ restorePreviousSession: true });
     context.commit("setWebId", getDefaultSession().info.webId);
-    await context.dispatch("spaces/loadSpaces", null, { root: true })
-    context.commit("setProcessingSilent", false)
+    await context.dispatch("spaces/loadSpaces", null, { root: true });
+    context.commit("setProcessingSilent", false);
   },
   async logout(context) {
     await logout();
     context.commit("setWebId", null);
   },
   async initialSetup() {
-
     // context.commit('setProcessingStatus', processingStates.initialSetup)
     // verifies if index hiperfolder already exists
     // otherwise, creates one
-
-
-
     // // search for index note
     // var existentNote = await Note.find(
     //   Note.defaultCollectionUrl + "index#" + Note.nameForSoloThing
     // );
-
     // // creates index note if there is none
     // if (!existentNote) {
     //   var welcomeNote = new Note({
@@ -83,27 +78,22 @@ const actions = {
     //   });
     //   // add note backlink to hiperfolder list
     //   welcomeNote.addFolder(targetFolder.url);
-
     //   await welcomeNote.save();
     // }
     // context.dispatch('portals/getAvailablePortals', null, { root: true }).then(
     //   context.dispatch('portals/activatePortal', null, { root: true })
-
     // )
-
     // context.dispatch("notes/getNote", Note.defaultCollectionUrl + "index", {
     //   root: true,
     // });
-
     // context.commit('setProcessingStatus', null)
     // context.commit('setInitializationStatus', true)
   },
   setSpaceStorage(context, spaceStorage) {
     context.commit("setSpaceStorage", spaceStorage);
-    context.commit('setInitializationStatus', false)
-    context.dispatch("checkSpaceStatus")
+    context.commit("setInitializationStatus", false);
+    context.dispatch("checkSpaceStatus");
   },
-
 };
 
 // mutations

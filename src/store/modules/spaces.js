@@ -2,7 +2,7 @@
 // import NoteContainer from '@/models/NoteContainer'
 // eslint-disable-next-line
 import Space from "@/models/Space";
-import find from 'lodash/find'
+import find from "lodash/find";
 import HiperFolder from "@/models/HiperFolder";
 import Portal from "@/models/Portal";
 import Note from "@/models/Note";
@@ -12,89 +12,85 @@ import { putEndSlash } from "@/utils/utils";
 
 // initial state
 const state = () => ({
-    processingStatus: false,
-    activeSpaceUrl: null, // space object 
-    isInitialized: false,
-    availableSpaces: {},
-    cache: {}
+  processingStatus: false,
+  activeSpaceUrl: null, // space object
+  isInitialized: false,
+  availableSpaces: {},
+  cache: {},
 });
 
 // getters
 const getters = {
-    activeSpace(state) {
-        return state.availableSpaces[state.activeSpaceUrl]
-    },
-    //eslint-disable-next-line
-    fullSpaceUrl(state, getters) {
-
-        return putEndSlash(getters['activeSpace']?.storagePath)
-    }
-}
+  activeSpace(state) {
+    return state.availableSpaces[state.activeSpaceUrl];
+  },
+  //eslint-disable-next-line
+  fullSpaceUrl(state, getters) {
+    return putEndSlash(getters["activeSpace"]?.storagePath);
+  },
+};
 // actions
 const actions = {
-    async createSpaceBasics(context, space) {
-        // Create index hiperfolder to use as default in space
-        let normalizedUrl = putEndSlash(space.storagePath)
+  async createSpaceBasics(context, space) {
+    // Create index hiperfolder to use as default in space
+    let normalizedUrl = putEndSlash(space.storagePath);
 
-        var indexFolder = new HiperFolder(
-            {
-                datasetUrl: normalizedUrl + HiperFolder.defaultCollectionPrefix + uuidv4(),
-                id: "index",
-                name: "Index",
-            }
-        )
-        indexFolder = await indexFolder.save()
+    var indexFolder = new HiperFolder({
+      datasetUrl:
+        normalizedUrl + HiperFolder.defaultCollectionPrefix + uuidv4(),
+      id: "index",
+      name: "Index",
+    });
+    indexFolder = await indexFolder.save();
 
-        // create portals index and initial portal
-        let portalIndex = new HiperFolder({
-            name: "index",
-            url: normalizedUrl + Portal.defaultCollectionPrefix + "index#self",
-            itemTypes: [Portal],
-        });
-        portalIndex = await portalIndex.save()
+    // create portals index and initial portal
+    let portalIndex = new HiperFolder({
+      name: "index",
+      url: normalizedUrl + Portal.defaultCollectionPrefix + "index#self",
+      itemTypes: [Portal],
+    });
+    portalIndex = await portalIndex.save();
 
+    let portal = new Portal({
+      name: "Personal",
+      description: "Personal Space",
+      datasetUrl: normalizedUrl + Portal.defaultCollectionPrefix + uuidv4(),
+      portalInterface: "index",
+      subPortals: ["files", "notes", "spaces"],
+      defaultSubPortal: "notes",
+      hiperFolders: [portalIndex.url],
+    });
 
-        let portal = new Portal({
-            name: 'Pessoal',
-            description: 'Teste',
-            datasetUrl: normalizedUrl + Portal.defaultCollectionPrefix + uuidv4(),
-            portalInterface: 'index',
-            subPortals: ['files', 'notes', 'spaces'],
-            defaultSubPortal: 'notes',
-            hiperFolders: [portalIndex.url]
+    portal = await portal.save();
 
-        })
+    var portalSpaces = new Portal({
+      name: "Advanced",
+      description: "Usefull to see your files",
+      datasetUrl: normalizedUrl + Portal.defaultCollectionPrefix + uuidv4(),
+      portalInterface: "index",
+      subPortals: ["files"],
+      defaultSubPortal: "files",
+      hiperFolders: [portalIndex.url],
+    });
 
-        portal = await portal.save()
+    portalSpaces = await portalSpaces.save();
 
-        var portalSpaces = new Portal({
-            name: 'Spaces',
-            description: 'Usefull to see spaces you have',
-            datasetUrl: normalizedUrl + Portal.defaultCollectionPrefix + uuidv4(),
-            portalInterface: 'index',
-            subPortals: ['spaces'],
-            defaultSubPortal: 'spaces',
-            hiperFolders: [portalIndex.url]
-        })
+    portalIndex.defaultLink = portal.url;
+    portalIndex = await portalIndex.save();
 
-        portalSpaces = await portalSpaces.save()
+    // create notes folder for welcome note
 
-        portalIndex.defaultLink = portal.url
-        portalIndex = await portalIndex.save()
+    let notesFolder = new HiperFolder({
+      name: "Notes",
+      datasetUrl:
+        normalizedUrl + HiperFolder.defaultCollectionPrefix + uuidv4(),
 
+      itemTypes: [HiperFolder],
+    });
+    notesFolder.addFolder(indexFolder.url);
+    notesFolder = await notesFolder.save();
 
-        // create notes folder for welcome note
-
-        let notesFolder = new HiperFolder({
-            name: "Notes",
-            datasetUrl: normalizedUrl + HiperFolder.defaultCollectionPrefix + uuidv4(),
-
-            itemTypes: [HiperFolder],
-        });
-        notesFolder.addFolder(indexFolder.url)
-        notesFolder = await notesFolder.save();
-
-        let noteText = ```
+    let noteText = `
         
 # Welcome to Fractopia!
 
@@ -148,144 +144,147 @@ Jane lives in Manaus, 37, and wanted to learn how to grow her own food. She does
 She had a space to keep things, and connect things together. She had Portals through which she could see and interact with things. After that, she decided to venture in the social portal. There, she found a big community from Manaus, and through its portals got to know a lot of different parts of the town.
 
 Among them, a group of permacultors, whom happily replied in joining and added her in their space. saw a portal with up to date information like best vegetables to grown that month, projections, curated news (actually, 4 different collections sometimes quite disagreeing), weather reports. In another, people discussed their experiences and learned together in permaculture and non-permaculture related topics. They had a so called collection with information about every plant and animal you could imagine. Some were from their own space, some were shared and linked from all over the globe.
+`;
+    // Create welcome note
+    let welcomeNote = new Note({
+      content: noteText,
+      title: "Welcome to Fractopia",
+      id: "index",
+      datasetUrl: normalizedUrl + Note.defaultCollectionPrefix + uuidv4(),
+    });
 
+    // add note backlink to hiperfolder list
+    welcomeNote.addFolder(notesFolder.url);
 
-        ```
-        // Create welcome note
-        let welcomeNote = new Note({
-            content: noteText,
-            title: "Welcome to Fractopia",
-            id: "index",
-            datasetUrl: normalizedUrl + Note.defaultCollectionPrefix + uuidv4(),
-        });
-
-        // add note backlink to hiperfolder list
-        welcomeNote.addFolder(notesFolder.url);
-
-        welcomeNote = await welcomeNote.save();
-        if (indexFolder, portalIndex, portal, portalSpaces, welcomeNote) {
-            space.portalIndex = portalIndex.url
-            space.defaultIndexFolder = indexFolder.url
-            await space.save()
-            return { space, indexFolder, portalIndex }
-        } else {
-            throw new Error('Failed creating space', { space, indexFolder, portalIndex })
-        }
-
-
-    },
-    async createSpace(context, newSpaceData) {
-        context.commit("setProcessingStatus", processingStates.creatingSpace);
-
-        let space = new Space(newSpaceData)
-        await space.save()
-
-        if (space) {
-            let availableSpaces = context.state.availableSpaces
-            availableSpaces[space.url] = space
-            context.commit('setAvailableSpaces', availableSpaces)
-            context.dispatch('createSpaceBasics', space).then(result => {
-                context.dispatch('checkAndSetSpace', result)
-                context.commit("setProcessingStatus", false);
-
-            }).catch(error => {
-                console.warn('Failed setting up space', error)
-                context.commit('setSpaceInitializedStatus', false)
-                context.commit('setActiveSpace', null)
-                context.commit("setProcessingStatus", false);
-
-            })
-
-        } else {
-            console.warn('Failed creating space', newSpaceData)
-        }
-        // set space as active?
-        // checkSpaceStatus?
-        // check in list if non repeated url
-    },
-    async loadSpaces(context) {
-        context.commit('setProcessingStatus', processingStates.loadingSpaces)
-
-        let availableSpaces = context.state.availableSpaces
-        if (context.getters.activeSpace && context.state.isInitialized) {
-            return;
-        } else {
-
-            if (Object.keys(availableSpaces).length === 0) {
-                availableSpaces = await Space.getAllAvailable(true)
-                context.commit('setAvailableSpaces', availableSpaces)
-            }
-
-            let defaultSpace = find(availableSpaces, 'isDefaultSpace')
-            if (defaultSpace) {
-                context.dispatch('checkAndSetSpace', { space: defaultSpace })
-
-            }
-        }
-        context.commit('setProcessingStatus', false)
-
-    },
-    async checkAndSetSpace(context, { space, indexFolder: indexFolderObj, portalIndex: portalIndexObj }) {
-        // indexfolder
-        context.commit('setProcessingStatus', processingStates.settingSpace)
-
-        let indexFolder = indexFolderObj || await HiperFolder.find(space.defaultIndexFolder)
-        let portalIndex = portalIndexObj || await HiperFolder.find(space.portalIndex)
-        console.log("checkAndSetSpace", indexFolder, portalIndex);
-
-        if (indexFolder?.url && (portalIndex.defaultLink || portalIndex.items.length > 0)) {
-            context.dispatch('hiperfolder/changeActiveFolder', indexFolder.url, { root: true })
-            context.dispatch('portals/activatePortal', portalIndex.defaultLink || portalIndex.items[0].url, { root: true })
-            let availableSpaces = context.state.availableSpaces
-            availableSpaces[space.url] = space
-            context.commit('setAvailableSpaces', availableSpaces)
-            context.commit('setSpaceInitializedStatus', true)
-
-            context.commit('setActiveSpace', space.url)
-
-        } else {
-
-
-            context.commit('setSpaceInitializedStatus', false)
-            context.commit('setActiveSpace', null)
-            context.commit('setProcessingStatus', false)
-
-        }
-        context.commit("setProcessingStatus", false);
-
-        // portalIndex
-
-    },
-    deleteSpace() {
-
-    },
-    setActiveSpace(context, spaceUrl) {
-        context.commit('setActiveSpace', spaceUrl)
+    welcomeNote = await welcomeNote.save();
+    if ((indexFolder, portalIndex, portal, portalSpaces, welcomeNote)) {
+      space.portalIndex = portalIndex.url;
+      space.defaultIndexFolder = indexFolder.url;
+      await space.save();
+      return { space, indexFolder, portalIndex };
+    } else {
+      throw new Error("Failed creating space", {
+        space,
+        indexFolder,
+        portalIndex,
+      });
     }
-    //
+  },
+  async createSpace(context, newSpaceData) {
+    context.commit("setProcessingStatus", processingStates.creatingSpace);
+
+    let space = new Space(newSpaceData);
+    await space.save();
+
+    if (space) {
+      let availableSpaces = context.state.availableSpaces;
+      availableSpaces[space.url] = space;
+      context.commit("setAvailableSpaces", availableSpaces);
+      context
+        .dispatch("createSpaceBasics", space)
+        .then((result) => {
+          context.dispatch("checkAndSetSpace", result);
+          context.commit("setProcessingStatus", false);
+        })
+        .catch((error) => {
+          console.warn("Failed setting up space", error);
+          context.commit("setSpaceInitializedStatus", false);
+          context.commit("setActiveSpace", null);
+          context.commit("setProcessingStatus", false);
+        });
+    } else {
+      console.warn("Failed creating space", newSpaceData);
+    }
+    // set space as active?
+    // checkSpaceStatus?
+    // check in list if non repeated url
+  },
+  async loadSpaces(context) {
+    context.commit("setProcessingStatus", processingStates.loadingSpaces);
+
+    let availableSpaces = context.state.availableSpaces;
+    if (context.getters.activeSpace && context.state.isInitialized) {
+      return;
+    } else {
+      if (Object.keys(availableSpaces).length === 0) {
+        availableSpaces = await Space.getAllAvailable(true);
+        context.commit("setAvailableSpaces", availableSpaces);
+      }
+
+      let defaultSpace = find(availableSpaces, "isDefaultSpace");
+      if (defaultSpace) {
+        context.dispatch("checkAndSetSpace", { space: defaultSpace });
+      }
+    }
+    context.commit("setProcessingStatus", false);
+  },
+  async checkAndSetSpace(
+    context,
+    { space, indexFolder: indexFolderObj, portalIndex: portalIndexObj }
+  ) {
+    // indexfolder
+    context.commit("setProcessingStatus", processingStates.settingSpace);
+
+    let indexFolder =
+      indexFolderObj || (await HiperFolder.find(space.defaultIndexFolder));
+    let portalIndex =
+      portalIndexObj || (await HiperFolder.find(space.portalIndex));
+    console.log("checkAndSetSpace", indexFolder, portalIndex);
+
+    if (
+      indexFolder?.url &&
+      (portalIndex.defaultLink || portalIndex.items.length > 0)
+    ) {
+      context.dispatch("hiperfolder/changeActiveFolder", indexFolder.url, {
+        root: true,
+      });
+      context.dispatch(
+        "portals/activatePortal",
+        portalIndex.defaultLink || portalIndex.items[0].url,
+        { root: true }
+      );
+      let availableSpaces = context.state.availableSpaces;
+      availableSpaces[space.url] = space;
+      context.commit("setAvailableSpaces", availableSpaces);
+      context.commit("setSpaceInitializedStatus", true);
+
+      context.commit("setActiveSpace", space.url);
+    } else {
+      context.commit("setSpaceInitializedStatus", false);
+      context.commit("setActiveSpace", null);
+      context.commit("setProcessingStatus", false);
+    }
+    context.commit("setProcessingStatus", false);
+
+    // portalIndex
+  },
+  deleteSpace() {},
+  setActiveSpace(context, spaceUrl) {
+    context.commit("setActiveSpace", spaceUrl);
+  },
+  //
 };
 
 // mutations
 const mutations = {
-    setActiveSpace(state, spaceUrl) {
-        state.activeSpaceUrl = spaceUrl
-    },
-    setAvailableSpaces(state, availableSpaces) {
-        state.availableSpaces = availableSpaces
-    },
-    setProcessingStatus(state, status) {
-        state.processingStatus = status;
-    },
-    setSpaceInitializedStatus(state, status) {
-        state.isInitialized = status
-    }
-
+  setActiveSpace(state, spaceUrl) {
+    state.activeSpaceUrl = spaceUrl;
+  },
+  setAvailableSpaces(state, availableSpaces) {
+    state.availableSpaces = availableSpaces;
+  },
+  setProcessingStatus(state, status) {
+    state.processingStatus = status;
+  },
+  setSpaceInitializedStatus(state, status) {
+    state.isInitialized = status;
+  },
 };
 
 export default {
-    namespaced: true,
-    state,
-    getters,
-    actions,
-    mutations,
+  namespaced: true,
+  state,
+  getters,
+  actions,
+  mutations,
 };

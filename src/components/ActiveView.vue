@@ -23,7 +23,10 @@ export default {
     },
     isSpaceInitialized() {
       console.log("isInitialized", this.$store.state.spaces.isInitialized);
-      return this.$store.state.spaces.isInitialized;
+      return (
+        this.$store.state.spaces.isInitialized ||
+        this.$store.getters["spaces/activeSpace"]
+      );
     },
     activeSubPortal() {
       return this.$store.state.portals?.activeSubPortal;

@@ -1,11 +1,10 @@
- 
- <template>
-  <v-row justify="center">
+<template>
+  <v-row justify="center" v-if="isProcessing">
     <v-dialog v-model="dialog" persistent max-width="600">
       <v-card class="pa-4 text-center center-text">
         <v-card-title class="text-h5">
-          It seems this is your first time.. <br />
-          So first, you need to create your space
+          It seems this is your first time.. So first, you need to create your
+          space
         </v-card-title>
 
         <v-card-title class="text-h5"> </v-card-title>
@@ -65,6 +64,9 @@ export default {
   computed: {
     waitingForSpaceTime() {
       return false;
+    },
+    isProcessing() {
+      return !!this.$store.state.spaces.processingStatus;
     },
     isProcessingInitialization() {
       return (
