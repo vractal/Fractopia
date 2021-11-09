@@ -13,7 +13,11 @@
       v-if="note !== null"
       class="d-flex flex-column justify-space-between"
     >
-      <v-text-field :disabled="!editorToggle" v-model="title" />
+      <v-text-field
+        placeholder="Title"
+        :disabled="!editorToggle"
+        v-model="title"
+      />
       <markduck v-if="!editorToggle" :markdown="localContent" />
 
       <v-md-editor

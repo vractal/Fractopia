@@ -1,43 +1,59 @@
 <template>
   <div class="portal-switch d-flex flex-row align-start">
-    <p class="pa-6 ml-16">{{ spaceName }}</p>
-
-    <v-select
-      @change="changePortal"
-      v-model="contextInput"
-      :items="availablePortals"
-      placeholder="@Portal"
-      dense
-      outlined
-      single-line
-    />
-    <v-btn small @click="createNew">
-      <v-icon>mdi-plus</v-icon>
-    </v-btn>
-    <v-btn small @click="reloadPortals">
-      <v-icon>mdi-refresh</v-icon>
-    </v-btn>
-    <GenericDialog
-      v-if="creating"
-      @click="createNew"
-      @cancel="cancel"
-      label="Create Portal"
+    <v-sheet
+      class="d-flex flex-row align-center justify-center pl-6 pb-8 ml-16"
     >
-      <v-text-field placeholder="Name" v-model="createNameInput" />
-
-      <v-autocomplete
-        v-model="subPortalsSelected"
-        :items="subPortalOptions"
+      <div @click="activateSpacesView">
+        <v-text-field
+          dense
+          disabled
+          single-line
+          :value="spaceName"
+          max-width="100"
+          messages="Current Space"
+          class="py-6 ml-16"
+        >
+          <template v-slot:prepend>
+            <v-icon color="purple darken-2" class="mb-4" big>mdi-cube</v-icon>
+          </template>
+        </v-text-field>
+      </div>
+      <v-select
+        messages="Active Portal"
+        @change="changePortal"
+        v-model="contextInput"
+        :items="availablePortals"
+        placeholder="@Portal"
         dense
-        chips
-        small-chips
-        label="Subportals"
-        multiple
-        placeholder="subportal"
+        single-line
       />
-    </GenericDialog>
 
-    <div></div>
+      <v-icon class="mb-4" @click="createNew" big color="purple darken-2"
+        >mdi-plus</v-icon
+      >
+      <v-icon color="purple darken-2" class="mb-4" big @click="reloadPortals"
+        >mdi-refresh</v-icon
+      >
+      <GenericDialog
+        v-if="creating"
+        @click="createNew"
+        @cancel="cancel"
+        label="Create Portal"
+      >
+        <v-text-field placeholder="Name" v-model="createNameInput" />
+
+        <v-autocomplete
+          v-model="subPortalsSelected"
+          :items="subPortalOptions"
+          dense
+          chips
+          small-chips
+          label="Subportals"
+          multiple
+          placeholder="subportal"
+        />
+      </GenericDialog>
+    </v-sheet>
   </div>
 </template>
 <script>
@@ -79,6 +95,9 @@ export default {
     currentPortal() {
       return this.$store.state.portals.activePortal?.url || "";
     },
+    activeSubPortal() {
+      return this.$store.state.portals.activeSubPortal;
+    },
     availablePortals() {
       return (
         this.$store.state.portals.availablePortals?.map((portal) => ({
@@ -89,6 +108,12 @@ export default {
     },
   },
   methods: {
+    activateSpacesView() {
+      return this.$store.dispatch(
+        "portals/setActiveSubportal",
+        this.activeSubPortal === "spaces" ? null : "spaces"
+      );
+    },
     reloadPortals() {
       this.$store.dispatch("portals/getAvailablePortals");
     },

@@ -10,11 +10,17 @@
     <div class="d-flex flex-row justify-space-between">
       <v-icon @click="fetchInitial">mdi-refresh</v-icon>
       <div>
-        <v-icon class="mx-6" big @click="openCreateFolderDialog"
+        <v-icon
+          color="purple darken-1"
+          class="mx-6"
+          big
+          @click="openCreateFolderDialog"
           >mdi-folder-plus</v-icon
         >
 
-        <v-icon big @click="createNote">mdi-text-box-plus</v-icon>
+        <v-icon color="purple darken-1" big @click="createNote"
+          >mdi-text-box-plus</v-icon
+        >
       </div>
     </div>
     <v-divider />
