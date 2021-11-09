@@ -39,23 +39,30 @@
         </v-switch>
       </div>
     </div>
-    <div v-if="pressed" class="d-flex flex-row" @keyup.esc="pressed = false">
+    <v-sheet
+      elevation="3"
+      v-if="pressed"
+      rounded
+      class="link-popup d-flex pa-2 flex-row"
+      @keyup.esc="pressed = false"
+    >
+      <v-icon class="mx-2 pb-2" big color="purple" @click="createLink"
+        >mdi-link</v-icon
+      >
       <v-autocomplete
         return-object
         autofocus
-        outlined
         dense
         :items="recentLinksItems"
         v-model="linkInput"
-        placeholed="Note name..."
+        placeholder="Type the name of note you want to link (needs to visit before)"
       />
-      <v-btn small rounded @click="createLink"
-        ><v-icon>mdi-check</v-icon></v-btn
+
+      <v-icon class="mx-2" color="purple" @click="createLink">mdi-check</v-icon>
+      <v-icon class="mx-2" color="purple" @click="pressed = false"
+        >mdi-close</v-icon
       >
-      <v-btn small rounded @click="pressed = false"
-        ><v-icon>mdi-close</v-icon></v-btn
-      >
-    </div>
+    </v-sheet>
   </v-sheet>
 </template>
 <script>
@@ -197,3 +204,9 @@ export default {
   },
 };
 </script>
+<style >
+.link-popup {
+  margin-top: -40px;
+  z-index: 9999999999999999999999999 !important;
+}
+</style>

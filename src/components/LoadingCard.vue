@@ -8,8 +8,13 @@
       elevation="1"
       class="pa-8 d-flex justify-center align-center flex-column"
     >
-      <v-progress-circular color="primary" :size="70" indeterminate />
-      <h2>Carregando Aplicação</h2>
+      <v-progress-circular
+        class="pa-2"
+        color="primary"
+        :size="90"
+        indeterminate
+      />
+      <h2>Calculating fractals</h2>
     </v-sheet>
   </v-sheet>
 </template>

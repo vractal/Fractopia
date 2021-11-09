@@ -12,18 +12,18 @@
     >
       <!-- <template v-slot: -->
       <h1 class="text--primary">Fractopia</h1>
-      <p class="">People, Things,</p>
+      <p class="">People, Things, Networks</p>
 
       <!-- <v-progress-circular color="primary" :size="70" indeterminate />
       <h2>Carregando Aplicação</h2> -->
       <v-form @submit="login">
         <v-text-field
-          label="Url do Pod"
+          label="Pod Url"
           placeholder="Ex: https://exemplo.fractopia.org"
           v-model="userUrl"
         />
-        <v-btn block color="primary" @click="login" :loading="loading">
-          Login
+        <v-btn block big color="primary" @click="login" :loading="loading">
+          Login With Solid
         </v-btn>
       </v-form>
     </v-card>
@@ -40,7 +40,7 @@ export default {
   },
   data() {
     return {
-      userUrl: "https://solidweb.org",
+      userUrl: "https://solidcommunity.net",
     };
   },
   computed: {
