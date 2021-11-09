@@ -59,12 +59,25 @@ const actions = {
             description: 'Teste',
             datasetUrl: normalizedUrl + Portal.defaultCollectionPrefix + uuidv4(),
             portalInterface: 'index',
-            subPortals: ['files', 'notes'],
-            defaultSubPortal: 'notes'
+            subPortals: ['files', 'notes', 'spaces'],
+            defaultSubPortal: 'notes',
+            hiperFolders: [portalIndex.url]
+
         })
-        portal.addFolder(portalIndex.url)
 
         portal = await portal.save()
+
+        var portalSpaces = new Portal({
+            name: 'Spaces',
+            description: 'Usefull to see spaces you have',
+            datasetUrl: normalizedUrl + Portal.defaultCollectionPrefix + uuidv4(),
+            portalInterface: 'index',
+            subPortals: ['spaces'],
+            defaultSubPortal: 'spaces',
+            hiperFolders: [portalIndex.url]
+        })
+
+        portalSpaces = await portalSpaces.save()
 
         portalIndex.defaultLink = portal.url
         portalIndex = await portalIndex.save()
@@ -93,7 +106,7 @@ const actions = {
         welcomeNote.addFolder(notesFolder.url);
 
         welcomeNote = await welcomeNote.save();
-        if (indexFolder, portalIndex, portal, welcomeNote) {
+        if (indexFolder, portalIndex, portal, portalSpaces, welcomeNote) {
             space.portalIndex = portalIndex.url
             space.defaultIndexFolder = indexFolder.url
             await space.save()
@@ -134,6 +147,8 @@ const actions = {
         // check in list if non repeated url
     },
     async loadSpaces(context) {
+        context.commit('setProcessingStatus', processingStates.loadingSpaces)
+
         let availableSpaces = context.state.availableSpaces
         if (context.getters.activeSpace && context.state.isInitialized) {
             return;
@@ -150,10 +165,13 @@ const actions = {
 
             }
         }
+        context.commit('setProcessingStatus', false)
 
     },
     async checkAndSetSpace(context, { space, indexFolder: indexFolderObj, portalIndex: portalIndexObj }) {
         // indexfolder
+        context.commit('setProcessingStatus', processingStates.settingSpace)
+
         let indexFolder = indexFolderObj || await HiperFolder.find(space.defaultIndexFolder)
         let portalIndex = portalIndexObj || await HiperFolder.find(space.portalIndex)
 
@@ -168,8 +186,11 @@ const actions = {
 
             context.commit('setSpaceInitializedStatus', false)
             context.commit('setActiveSpace', null)
+            context.commit('setProcessingStatus', processingStates.settingSpace)
 
         }
+        context.commit("setProcessingStatus", false);
+
         // portalIndex
 
     },

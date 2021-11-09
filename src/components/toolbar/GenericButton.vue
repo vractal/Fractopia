@@ -1,9 +1,15 @@
 <template>
-  <div class="d-flex flex-column align-center">
-    <v-btn small color="danger" @click="click">
+  <div class="white--text d-flex flex-column align-center">
+    <v-btn
+      class="white--text"
+      small
+      rounded
+      color="purple darken-2"
+      @click="click"
+    >
       <v-icon>{{ icon }}</v-icon>
     </v-btn>
-    <p>{{ label }}</p>
+    <p class="black--text">{{ label }}</p>
   </div>
 </template>
 <script>

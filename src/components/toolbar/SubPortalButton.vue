@@ -20,6 +20,8 @@ export default {
           return "mdi-folder";
         case "notes":
           return "mdi-note";
+        case "spaces":
+          return "mdi-cube";
         default:
           return "mdi-tool";
       }

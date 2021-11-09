@@ -1,8 +1,8 @@
 <template>
-  <v-container max-width="960px" class="d-flex flex-row justify-center">
+  <div max-width="960px" class="d-flex flex-row justify-center align-start">
     <HiperList />
     <Note />
-  </v-container>
+  </div>
 </template>
 <script>
 import Note from "@/components/Note.vue";

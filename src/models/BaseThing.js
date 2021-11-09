@@ -17,7 +17,9 @@ import {
   setUrl,
   getBoolean,
   setBoolean,
-  getUrl
+  getUrl,
+  removeThing,
+  deleteSolidDataset
   // addStringNoLocale,
   // addDatetime,
   // addUrl
@@ -25,7 +27,7 @@ import {
 import { fetch } from "@inrupt/solid-client-authn-browser";
 import store from "@/store";
 import { parseFractopiaUrl } from '@/utils/utils'
-import { addReferenceToFolderUrl } from "@/utils/solid";
+import { addReferenceToFolderUrl, removeReferenceToFolderUrl } from "@/utils/solid";
 
 
 export default class BaseThing {
@@ -193,10 +195,6 @@ export default class BaseThing {
 
   // save thing
   async save() {
-    // dadas as variáveis, salva em um arquivo as informações do portal no dataset
-    // save portal information on a file in the dataset
-    // create portalIndex
-    // add reference to portal in portalIndex
     let dataset;
     let url;
     let { fullUrl, datasetUrl } = parseFractopiaUrl(this.url, this.childClass.defaultCollectionPrefix);
@@ -249,6 +247,43 @@ export default class BaseThing {
 
   }
 
+  async delete() {
+    let { fullUrl, datasetUrl } = parseFractopiaUrl(this.url);
+
+    await this.removeContainerReferences().catch(err => {
+      console.log('error', err)
+      return;
+    })
+
+
+    try {
+
+      if (this.childClass.oneThingPerDataset) {
+        await deleteSolidDataset(datasetUrl, {
+          fetch: fetch
+        })
+      } else {
+        let dataset = await getSolidDataset(datasetUrl)
+        dataset = removeThing(dataset, this.url);
+
+        await saveSolidDatasetAt(
+          datasetUrl,
+          dataset,
+          { fetch: fetch } // fetch from authenticated Session
+        );
+      }
+
+
+      this.new = false;
+      this.deleted = true
+      return this
+    } catch (e) {
+      console.log('Failed to delete thing')
+      return false
+    }
+
+  }
+
   // references are stored on thingContainer
   // when it's changed, changes data in all related places
 
@@ -273,6 +308,25 @@ export default class BaseThing {
       // TODO: Remove backlinks
     }
   }
+
+  // removes to references of the thing:
+  // write/update references inside hiperfolders 
+  // Maybe should detached for performance (also append)
+  async removeContainerReferences() {
+    for (let folderUrl of this.hiperFolders) {
+      try {
+        await removeReferenceToFolderUrl(
+          { url: this.url },
+          folderUrl
+        );
+      } catch (error) {
+        console.warn("Failed removing container reference", folderUrl, this.url, error);
+      }
+    }
+  }
+
+
+
 
   // changes to references of the thing:
   // write/update references inside hiperfolders 

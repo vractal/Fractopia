@@ -3,29 +3,21 @@
   <v-row justify="center">
     <v-dialog v-model="dialog" persistent max-width="600">
       <v-card class="pa-4">
-        <v-card-title class="text-h5">
-          It seems this is your first time.. So first, we need to create your
-          space
+        <v-card-title class="text-h5 text-center">
+          {{ label }}
         </v-card-title>
-        <v-card-text
-          >A space is where things live. Your happy data ranch.</v-card-text
-        >
-        <h1></h1>
-        <v-text-field
-          v-model="spaceNameInput"
-          placeholder="The name for your space"
-        />
+        <slot />
 
         <v-card-actions>
-          <v-spacer></v-spacer>
-
+          <v-btn v-if="!loading" color="gray darken-1" rounded @click="cancel"
+            >Cancel</v-btn
+          >
           <v-btn
             color="white--text purple darken-1"
             rounded
-            block
-            @click="initializeSpace"
-            :loading="isProcessingInitialization"
-            >Make it!</v-btn
+            @click="click"
+            :loading="!!loading"
+            >Ok</v-btn
           >
         </v-card-actions>
       </v-card>
@@ -37,8 +29,8 @@ import processingStates from "@/utils/processingStates";
 
 export default {
   props: {
-    icon: String,
     label: String,
+    loading: String,
   },
   data() {
     return {
@@ -47,16 +39,19 @@ export default {
     };
   },
   methods: {
-    initializeSpace() {
-      this.$store.dispatch("spaces/createSpace", {
-        name: this.spaceNameInput || "personal",
-        isDefaultSpace: true,
-      });
+    click(event) {
+      this.$emit("click", event);
+    },
+    cancel(event) {
+      this.$emit("cancel", event);
     },
   },
   computed: {
     waitingForSpaceTime() {
-      return false;
+      return (
+        this.$store.state.spaces.processingStatus &&
+        !this.isProcessingInitialization
+      );
     },
     isProcessingInitialization() {
       return (

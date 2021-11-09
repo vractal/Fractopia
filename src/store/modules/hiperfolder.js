@@ -1,9 +1,11 @@
 import HiperFolder from "@/models/HiperFolder";
+import Note from "@/models/Note";
 
 // initial state
 const state = () => ({
     activeFolder: null, // url
     selectedFolder: null,
+    folderToReload: null,
     cache: {},
     //Storage / Browser
 });
@@ -52,7 +54,13 @@ const actions = {
             type: newFolder.rdfsClasses[0]
         });
     },
+    async removeFolder(context, folderUrl) {
+        console.log('find', folderUrl)
+        let folder = await Note.find(folderUrl)
+        console.log('findfold', folder)
 
+        await folder?.delete()
+    }
 
 };
 
@@ -63,6 +71,9 @@ const mutations = {
     },
     setSelectedFolder(state, folderUrl) {
         state.selectedFolder = folderUrl
+    },
+    setFolderToReload(state, folderUrl) {
+        state.folderToReload = folderUrl
     }
 };
 

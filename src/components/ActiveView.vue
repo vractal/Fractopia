@@ -3,6 +3,7 @@
     <root-interface v-if="isSpaceInitialized">
       <component v-if="activePortalInterface" :is="activePortalInterface" />
     </root-interface>
+    <!-- <SpacesInterface v-else-if=""/> -->
     <space-setup-pop-up v-else />
   </div>
 </template>
@@ -12,6 +13,7 @@ import FileTreeInterface from "./portalInterfaces/FileTreeInterface.vue";
 
 import RootInterface from "./portalInterfaces/RootInterface.vue";
 import SpaceSetupPopUp from "./SpaceSetupPopUp.vue";
+import SpacesInterfaceVue from "./portalInterfaces/SpacesInterface.vue";
 export default {
   components: { RootInterface, SpaceSetupPopUp },
 
@@ -20,6 +22,7 @@ export default {
       return this.$store.state.portals?.activePortal || {};
     },
     isSpaceInitialized() {
+      console.log("isInitialized", this.$store.state.spaces.isInitialized);
       return this.$store.state.spaces.isInitialized;
     },
     activeSubPortal() {
@@ -35,6 +38,9 @@ export default {
           break;
         case "files":
           this.activePortalInterface = FileTreeInterface;
+          break;
+        case "spaces":
+          this.activePortalInterface = SpacesInterfaceVue;
           break;
 
         default:

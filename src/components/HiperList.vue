@@ -1,6 +1,25 @@
 <template>
-  <v-sheet id="2" rounded elevation="1" width="300" class="mx-4">
+  <v-sheet
+    id="2"
+    rounded
+    elevation="1"
+    width="400"
+    max-height="500"
+    class="mx-4 px-4 pa-2"
+  >
+    <div class="d-flex flex-row justify-space-between">
+      <v-icon @click="fetchInitial">mdi-refresh</v-icon>
+      <div>
+        <v-icon class="mx-6" big @click="openCreateFolderDialog"
+          >mdi-folder-plus</v-icon
+        >
+
+        <v-icon big @click="createNote">mdi-text-box-plus</v-icon>
+      </div>
+    </div>
+    <v-divider />
     <v-treeview
+      class="left-scrollbar overflow-auto"
       v-model="tree"
       :open="openFolders"
       :items="items"
@@ -9,35 +28,51 @@
       :load-children="load"
       :active.sync="active"
       return-object
-      rounded
       @update:open="onOpenFolderChange"
     >
       <template v-slot:prepend="{ item, open }">
         <v-icon v-if="!item.file">
           {{ open ? "mdi-folder-open" : "mdi-folder" }}
         </v-icon>
+        <v-icon v-else @click="() => removeFolder(item.url)">
+          {{ files[item.file] }}
+        </v-icon>
+      </template>
+      <template v-slot:append="{ item }">
+        <v-icon @click="() => removeFolder(item.url)" v-if="item.file">
+          mdi-delete
+        </v-icon>
         <v-icon v-else>
           {{ files[item.file] }}
         </v-icon>
       </template>
     </v-treeview>
-    <v-btn small @click="fetchInitial"><v-icon>mdi-refresh</v-icon></v-btn>
-    <v-btn small @click="createFolder"><v-icon>mdi-folder-plus</v-icon></v-btn>
-    <v-btn small @click="createNote"><v-icon>mdi-text-box-plus</v-icon></v-btn>
 
-    <v-text-field v-model="folderNameInput" placeholder="Type folder name" />
+    <GenericDialog
+      @click="createFolder"
+      @cancel="showCreateFolderDialog = false"
+      v-if="showCreateFolderDialog"
+      label="Create Folder"
+    >
+      <v-text-field v-model="folderNameInput" placeholder="Type folder name" />
+    </GenericDialog>
   </v-sheet>
 </template>
 <script>
 // import { fetch } from "@inrupt/solid-client-authn-browser";
 //
 import HiperFolder from "@/models/HiperFolder";
+import GenericDialog from "@/components/GenericDialog";
 
 import { rdf, schema } from "rdf-namespaces";
 import { parseFolderItemType } from "@/utils/utils";
+import { debounce } from "lodash";
 export default {
   created() {
     this.fetchInitial(this.indexUrl);
+  },
+  components: {
+    GenericDialog,
   },
   data: () => ({
     active: [],
@@ -56,6 +91,7 @@ export default {
     items: [],
     folderNameInput: "",
     typeFilter: schema.NoteDigitalDocument,
+    showCreateFolderDialog: false,
   }),
   watch: {
     active(newValue) {
@@ -99,6 +135,13 @@ export default {
         ];
       }
     },
+    folderToReload(newValue) {
+      console.log("folderTo", newValue);
+      if (newValue?.includes("http")) {
+        debounce(() => this.load({ url: newValue }), 200);
+      }
+      return;
+    },
   },
   computed: {
     activeFileUrl() {
@@ -106,6 +149,9 @@ export default {
     },
     activeFile() {
       return this.$store.state.notes.activeNote;
+    },
+    folderToReload() {
+      return this.$store.state.hiperfolder.folderToReload;
     },
     indexUrl() {
       return this.$store.state.hiperfolder.activeFolder;
@@ -182,11 +228,11 @@ export default {
     },
 
     async fetchInitial() {
-      this.items = await this.parseFileTree(this.indexUrl, 0, 2);
+      this.items = await this.parseFileTree(this.indexUrl, 0, 3);
     },
 
     async load(event) {
-      var children = await this.parseFileTree(event.url, 0, 1);
+      var children = await this.parseFileTree(event.url, 0, 3);
 
       const modifyTreeNodeByUrl = (url, array, newField = {}) => {
         let newArray = [];
@@ -210,19 +256,37 @@ export default {
       console.log("folders", folders);
     },
     createNote() {
-      this.$store.dispatch("notes/createNote", this.selectedFolder);
+      this.$store.dispatch("notes/createNote");
+    },
+    async removeFolder(url) {
+      // create new subfolder in desired location
+      console.log("removeurl", url);
+      this.$store
+        .dispatch("hiperfolder/removeFolder", url)
+        .then(() => this.fetchInitial());
+    },
+    openCreateFolderDialog() {
+      this.showCreateFolderDialog = true;
     },
 
     async createFolder() {
       // create new subfolder in desired location
-      this.$store.dispatch("hiperfolder/createFolder", {
-        folderName: this.folderNameInput,
-        parentUrl: this.selectedFolder || this.indexUrl,
-      });
+      this.$store
+        .dispatch("hiperfolder/createFolder", {
+          folderName: this.folderNameInput,
+          parentUrl: this.selectedFolder || this.indexUrl,
+        })
+        .then(() => this.load({ url: this.selectedFolder }));
 
       // cleans text field
       this.folderNameInput = "";
+      this.showCreateFolderDialog = false;
     },
   },
 };
 </script>
+<style >
+.left-scrollbar {
+  direction: ltr !important;
+}
+</style>

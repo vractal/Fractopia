@@ -11,30 +11,47 @@
       outlined
       single-line
     />
-    <v-btn @click="reloadPortals">
+    <v-btn small @click="createNew">
+      <v-icon>mdi-plus</v-icon>
+    </v-btn>
+    <v-btn small @click="reloadPortals">
       <v-icon>mdi-refresh</v-icon>
     </v-btn>
-    <v-btn small @click="createNew">
-      <v-icon>mdi-add</v-icon>
-    </v-btn>
-    <v-sheet
-      elevation="1"
+    <GenericDialog
       v-if="creating"
-      class="pa-6 d-flex flex-column justify-start"
+      @click="createNew"
+      @cancel="cancel"
+      label="Create Portal"
     >
       <v-text-field placeholder="Name" v-model="createNameInput" />
 
-      <v-text-field placeholder="subportal" v-model="createSubportalInput" />
-      <v-btn small @click="cancel"><v-icon>mdi-close</v-icon></v-btn>
-      <v-btn small @click="createNew"> <v-icon>mdi-ok</v-icon></v-btn>
-    </v-sheet>
+      <v-autocomplete
+        v-model="subPortalsSelected"
+        :items="subPortalOptions"
+        dense
+        chips
+        small-chips
+        label="Subportals"
+        multiple
+        placeholder="subportal"
+      />
+    </GenericDialog>
+
     <div></div>
   </div>
 </template>
 <script>
+import GenericDialog from "../GenericDialog.vue";
 export default {
+  components: { GenericDialog },
   data() {
     return {
+      subPortalsSelected: [],
+      subPortalOptions: [
+        { text: "File Manager", value: "files" },
+        { text: "Notes", value: "notes" },
+        { text: "Spaces", value: "spaces" },
+      ],
       creating: false,
       contextInput: "",
       createNameInput: "",
@@ -83,11 +100,15 @@ export default {
     // },
     createNew() {
       if (this.creating) {
-        this.$store.dispatch("portals/createPortal", {
-          name: this.createNameInput,
-          subPortals: [this.createSubportalInput],
-          defaultSubPortal: this.createSubportalInput,
-        });
+        this.$store
+          .dispatch("portals/createPortal", {
+            name: this.createNameInput,
+            subPortals: this.subPortalsSelected || [],
+            defaultSubPortal: this.createSubportalInput,
+          })
+          .then(() => {
+            this.cancel();
+          });
       } else {
         this.creating = true;
       }

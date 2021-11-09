@@ -39,12 +39,14 @@ const actions = {
     note.content = noteData.content
     note.title = noteData.title;
 
+    let folderUrl = parentUrl ? parentUrl : context.rootGetters["spaces/fullSpaceUrl"] + "hiperfolders/" + "index"
     if (note.hiperFolders.length === 0) {
-      let folderUrl = parentUrl ? parentUrl : context.rootGetters["auth/fullSpaceUrl"] + "hiperfolders/" + "index"
       note.addFolder(folderUrl);
     }
     note = await note.save();
     context.commit('setNote', note)
+    context.commit('hiperfolder/setFolderToReload', folderUrl, { root: true })
+
   },
 };
 
