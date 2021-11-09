@@ -29,4 +29,3 @@ const removeReferenceToFolderUrl = async (reference, url) => {
     });
 }
 export { addReferenceToFolderUrl, removeReferenceToFolderUrl }
-// https://testestestes.solidweb.org/public/Fractopia/v0.07/4394e307-ef7c-4fcd-a535-d130a1212ce6/hiperfolders/5ca13bee-d44a-4447-b4bb-0b4e73d27c6d#https://testestestes.solidweb.org/public/Fractopia/v0.07/4394e307-ef7c-4fcd-a535-d130a1212ce6/notes/19fae94b-0b18-40ea-b94d-1ddd2b5613c7self

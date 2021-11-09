@@ -14,7 +14,7 @@ const state = () => ({
   processing: false,
   processingSilent: false,
   processingStatus: null,
-  fractopiaStoragePrefix: "public/Fractopia/v0.08/",
+  fractopiaStoragePrefix: "public/Fractopia/v0.1/",
   spaceStoragePrefix: "pessoal/",
 });
 

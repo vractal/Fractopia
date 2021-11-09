@@ -10,7 +10,7 @@
           single-line
           :value="spaceName"
           max-width="100"
-          messages="Current Space"
+          :messages="['Current Space', '(click to change)']"
           class="py-6 ml-16"
         >
           <template v-slot:prepend>
@@ -19,6 +19,7 @@
         </v-text-field>
       </div>
       <v-select
+        class="mb-1"
         messages="Active Portal"
         @change="changePortal"
         v-model="contextInput"

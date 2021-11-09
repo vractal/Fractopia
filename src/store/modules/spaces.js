@@ -174,11 +174,16 @@ const actions = {
 
         let indexFolder = indexFolderObj || await HiperFolder.find(space.defaultIndexFolder)
         let portalIndex = portalIndexObj || await HiperFolder.find(space.portalIndex)
+        console.log("checkAndSetSpace", indexFolder, portalIndex);
 
         if (indexFolder?.url && (portalIndex.defaultLink || portalIndex.items.length > 0)) {
             context.dispatch('hiperfolder/changeActiveFolder', indexFolder.url, { root: true })
             context.dispatch('portals/activatePortal', portalIndex.defaultLink || portalIndex.items[0].url, { root: true })
+            let availableSpaces = context.state.availableSpaces
+            availableSpaces[space.url] = space
+            context.commit('setAvailableSpaces', availableSpaces)
             context.commit('setSpaceInitializedStatus', true)
+
             context.commit('setActiveSpace', space.url)
 
         } else {
@@ -186,7 +191,7 @@ const actions = {
 
             context.commit('setSpaceInitializedStatus', false)
             context.commit('setActiveSpace', null)
-            context.commit('setProcessingStatus', processingStates.settingSpace)
+            context.commit('setProcessingStatus', false)
 
         }
         context.commit("setProcessingStatus", false);

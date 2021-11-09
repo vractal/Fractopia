@@ -11,8 +11,21 @@
       <v-icon @click="fetchInitial">mdi-refresh</v-icon>
       <div>
         <v-icon
+          v-if="deleteEnabled"
+          color="red darken-1"
+          @click="deleteEnabled = !deleteEnabled"
+          >mdi-delete</v-icon
+        >
+        <v-icon
+          v-else
+          color="purple darken-3"
+          @click="deleteEnabled = !deleteEnabled"
+          >mdi-delete</v-icon
+        >
+
+        <v-icon
           color="purple darken-1"
-          class="mx-6"
+          class="mx-2"
           big
           @click="openCreateFolderDialog"
           >mdi-folder-plus</v-icon
@@ -45,11 +58,11 @@
         </v-icon>
       </template>
       <template v-slot:append="{ item }">
-        <v-icon @click="() => removeFolder(item.url)" v-if="item.file">
+        <v-icon
+          @click="() => removeFolder(item.url)"
+          v-if="item.file && deleteEnabled"
+        >
           mdi-delete
-        </v-icon>
-        <v-icon v-else>
-          {{ files[item.file] }}
         </v-icon>
       </template>
     </v-treeview>
@@ -81,6 +94,8 @@ export default {
     GenericDialog,
   },
   data: () => ({
+    deleteEnabled: false,
+
     active: [],
     openFolders: [],
     files: {
