@@ -1,24 +1,33 @@
 <i18n src="@/common/locales.json"></i18n>
 <template>
-  <div class="d-flex align-center justify-center">
-    <v-sheet
+  <v-sheet
+    elevation="0"
+    class="d-flex justify-center align-center"
+    height="100%"
+  >
+    <v-card
+      rounded
       elevation="1"
-      width="700"
-      class="pa-8 d-flex flex-column text-center solid-login"
-      padding="1"
+      class="pa-8 d-flex justify-center align-center flex-column"
     >
-      <h1>Fractopia</h1>
+      <!-- <template v-slot: -->
+      <h1 class="text--primary">Fractopia</h1>
+      <p class="">People, Things,</p>
 
+      <!-- <v-progress-circular color="primary" :size="70" indeterminate />
+      <h2>Carregando Aplicação</h2> -->
       <v-form @submit="login">
         <v-text-field
           label="Url do Pod"
           placeholder="Ex: https://exemplo.fractopia.org"
           v-model="userUrl"
         />
-        <v-btn color="primary" @click="login" :loading="loading"> Login </v-btn>
+        <v-btn block color="primary" @click="login" :loading="loading">
+          Login
+        </v-btn>
       </v-form>
-    </v-sheet>
-  </div>
+    </v-card>
+  </v-sheet>
 </template>
 
 <script>

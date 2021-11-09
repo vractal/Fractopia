@@ -1,18 +1,24 @@
  
  <template>
   <v-row justify="center">
-    <v-dialog v-model="dialog" persistent max-width="600">
-      <v-card class="pa-4">
-        <v-card-title class="text-h5 text-center">
+    <v-dialog @click:outside="cancel" v-model="dialog" max-width="400">
+      <v-card class="pa-4 text-center">
+        <h1 center class="text-center">
           {{ label }}
-        </v-card-title>
+        </h1>
         <slot />
 
         <v-card-actions>
-          <v-btn v-if="!loading" color="gray darken-1" rounded @click="cancel"
+          <!-- <v-btn
+            block
+            v-if="!loading"
+            color="gray darken-1"
+            rounded
+            @click="cancel"
             >Cancel</v-btn
-          >
+          > -->
           <v-btn
+            block
             color="white--text purple darken-1"
             rounded
             @click="click"

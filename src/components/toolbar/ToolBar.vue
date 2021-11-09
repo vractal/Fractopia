@@ -12,14 +12,7 @@
     >
       <template v-slot:activator>
         <div class="d-flex justify-start">
-          <v-btn
-            ripple="false"
-            x-large
-            v-model="fab"
-            color="purple darken-2"
-            dark
-            fab
-          >
+          <v-btn x-large v-model="fab" color="purple darken-2" dark fab>
             <!-- <v-icon v-if="fab"> mdi-set-center-right </v-icon>
             <v-icon v-else> mdi-set-left-center </v-icon> -->
 
