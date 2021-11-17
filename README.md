@@ -1,3 +1,4 @@
+Note: Develpment is continuing back at gitlab: https://gitlab.com/vractal/Fractopia (we are going to set this repo as a mirror)
 
 # Fractopia: project and ideias
 
@@ -25,7 +26,7 @@ The main technologies we used are:
 - vue/vuex
 - solid-client (inrupt)
 - solid-authn-client-browser (inrupt)
-- Vuetify - (for Ui components)
+- Vuetify - (for Ui componentAdds)
 - rdf-namespaces
 
 # Important concepts in Fractopia
